@@ -45,6 +45,8 @@ public class TestScenarioGenerator {
 	private Scenario scenario;
 	private Controler controler;
 
+	private VehicleType taxiVehicleType;
+
 	public TestScenarioGenerator() {
 		buildConfig();
 	}
@@ -92,6 +94,11 @@ public class TestScenarioGenerator {
 		// create scenario
 		scenario = ScenarioUtils.createScenario(config);
 
+		// create taxiVehicleType
+		taxiVehicleType = VehicleUtils.createVehicleType(Id.create("taxiType", VehicleType.class));
+		taxiVehicleType.getCapacity().setSeats(4);
+		scenario.getVehicles().addVehicleType(taxiVehicleType);
+
 		// sanity check
 		log.warn("CTudorache resultTaxiCfg: " + getTaxiCfg());
 		log.warn("CTudorache resultRuleParams: " + getRuleBasedTaxiOptimizerParams());
@@ -113,9 +120,9 @@ public class TestScenarioGenerator {
 		return (RuleBasedTaxiOptimizerParams) taxiCfg.getTaxiOptimizerParams();
 	}
 
-	public void addPassenger(int passengerId, Id<Link> fromLink, Id<Link> toLink, Double departureTime) {
+	public void addPassenger(String passengerId, Id<Link> fromLink, Id<Link> toLink, Double departureTime) {
 		// TODO(CTudorache): utility method for generating passenger id: "passenger_%d"
-		Person person = PopulationUtils.getFactory().createPerson(Id.create("passenger_" + passengerId, Person.class));
+		Person person = PopulationUtils.getFactory().createPerson(Id.create(passengerId, Person.class));
 		PersonUtils.setEmployed(person, false);
 
 		Plan plan = PopulationUtils.createPlan(person);
@@ -131,15 +138,8 @@ public class TestScenarioGenerator {
 		scenario.getPopulation().addPerson(person);
 	}
 
-	public void addVehicle(int vehicleId, Id<Link> startLink, Double t0, Double t1) {
-		// TODO(CTudorache): vehType needs to be constant
-		VehicleType vehType = VehicleUtils.createVehicleType(Id.create("taxiType", VehicleType.class));
-		vehType.getCapacity().setSeats(4);
-		scenario.getVehicles().addVehicleType(vehType);
-
-		// TODO(CTudorache): utility method for generating vehicle id: "taxi_vehicle_%d"
-		Vehicle v = VehicleUtils.createVehicle(Id.create("taxi_vehicle_" + vehicleId, Vehicle.class), vehType);
-		// TODO(CTudorache): do these attributes work? could not find an example of generating vehicle with start_link, t_0, t_1
+	public void addVehicle(String vehicleId, Id<Link> startLink, Double t0, Double t1) {
+		Vehicle v = VehicleUtils.createVehicle(Id.create(vehicleId, Vehicle.class), taxiVehicleType);
 		v.getAttributes().putAttribute("dvrpMode", "taxi");
 		v.getAttributes().putAttribute("startLink", startLink.toString());
 		v.getAttributes().putAttribute("serviceBeginTime", t0);

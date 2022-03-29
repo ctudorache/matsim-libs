@@ -57,7 +57,9 @@ public class Utils {
 		for (Event actualEv : actual) {
 			if (Objects.equals(actualEv.getEventType(), partialEv.type)) {
 				if (!partialEv.matches(actualEv)) {
-					throw new AssertionFailedException("Expected: " + partialEv + ", actual: " + actualEv);
+					throw new AssertionFailedException("Event mismatch:" +
+							"\n - expected: " + partialEv +
+							"\n - actual: " + actualEv);
 				}
 				if (!expectedIt.hasNext()) {
 					return;
@@ -65,9 +67,15 @@ public class Utils {
 				partialEv = expectedIt.next();
 			}
 		}
+		throw new AssertionFailedException("Event not found:" +
+				"\n - " + partialEv);
 	}
 
 	public static Matcher<Double> matcherAproxTime(Double t) {
 		return Matchers.both(Matchers.greaterThanOrEqualTo(t)).and(Matchers.lessThanOrEqualTo(t + 3));
+	}
+
+	public static double nextBatchedDispatchingTime(int batchDuration, double t) {
+		return Math.floorDiv((int)(t + batchDuration), batchDuration) * batchDuration;
 	}
 }

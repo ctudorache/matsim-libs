@@ -12,6 +12,7 @@ public class PartialEvent {
 	Matcher<Double> time;
 	String type;
 	String person;
+	@Nullable
 	String vehicle;
 
 	public PartialEvent(Matcher<Double> time, String type, String person, String vehicle) {

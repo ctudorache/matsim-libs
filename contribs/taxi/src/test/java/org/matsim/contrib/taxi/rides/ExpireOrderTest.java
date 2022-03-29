@@ -21,15 +21,15 @@ public class ExpireOrderTest {
 	public final MatsimTestUtils utils = new MatsimTestUtils();
 
 	@Test
-	public void testExpireOrder() {
+	public void testOrderExpires() {
 		TestScenarioGenerator testScenario = new TestScenarioGenerator();
 		testScenario.getTaxiCfg().setMaxSearchDuration(65.0); // order issued at: 00:05 and should expire in 65 sec => 70 sec
 
 		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
 
-		testScenario.addPassenger(1, gn.linkId(0, 1, 0, 0), gn.linkId(2, 0, 2, 1), 0.0);
-		testScenario.addPassenger(2, gn.linkId(0, 1, 0, 2), gn.linkId(2, 2, 2, 1), 5.0);
-		testScenario.addVehicle(1, gn.linkId(1, 2, 2, 2), 0.0, 1000.0);
+		testScenario.addPassenger("passenger_1", gn.linkId(0, 1, 0, 0), gn.linkId(2, 0, 2, 1), 0.0);
+		testScenario.addPassenger("passenger_2", gn.linkId(0, 1, 0, 2), gn.linkId(2, 2, 2, 1), 5.0);
+		testScenario.addVehicle("taxi_vehicle_1", gn.linkId(1, 2, 2, 2), 0.0, 1000.0);
 
 		List<Event> allEvents = testScenario.createController().run();
 
@@ -52,8 +52,8 @@ public class ExpireOrderTest {
 
 		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
 
-		testScenario.addPassenger(1, gn.linkId(0, 1, 0, 0), gn.linkId(2, 0, 2, 1), 0.0);
-		testScenario.addVehicle(1, gn.linkId(1, 2, 2, 2), 0.0, 1000.0);
+		testScenario.addPassenger("passenger_1", gn.linkId(0, 1, 0, 0), gn.linkId(2, 0, 2, 1), 0.0);
+		testScenario.addVehicle("taxi_vehicle_1", gn.linkId(1, 2, 2, 2), 0.0, 1000.0);
 
 		List<Event> allEvents = testScenario.createController().run();
 
@@ -63,6 +63,63 @@ public class ExpireOrderTest {
 				new PartialEvent(Utils.matcherAproxTime(driverAcceptanceDelay), PassengerRequestScheduledEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_1"),
 				new PartialEvent(null, PassengerPickedUpEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_1"),
 				new PartialEvent(null, PassengerDroppedOffEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_1")
+		));
+	}
+
+	@Test
+	public void testOrderExpiresDuringDriverAcceptanceDelay() {
+		TestScenarioGenerator testScenario = new TestScenarioGenerator();
+		final double orderExpiresSec = 25.0;
+		testScenario.getTaxiCfg().setMaxSearchDuration(orderExpiresSec);
+		final double driverAcceptanceDelay = 35; // order should expire while waiting for driver confirmation
+		testScenario.getTaxiCfg().setRequestAcceptanceDelay(driverAcceptanceDelay);
+
+		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
+
+		testScenario.addPassenger("passenger_1", gn.linkId(0, 1, 0, 0), gn.linkId(2, 0, 2, 1), 0.0);
+		testScenario.addVehicle("taxi_vehicle_1", gn.linkId(1, 2, 2, 2), 0.0, 1000.0);
+
+		List<Event> allEvents = testScenario.createController().run();
+
+		Utils.logEvents(log, allEvents);
+		Utils.expectEvents(allEvents, List.of(
+				new PartialEvent(Matchers.is(0.0), PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_1",null),
+				new PartialEvent(Utils.matcherAproxTime(orderExpiresSec), PassengerRequestRejectedEvent.EVENT_TYPE, "passenger_1",null)
+		));
+	}
+
+	@Test
+	public void testBatchedDispatching() {
+		TestScenarioGenerator testScenario = new TestScenarioGenerator();
+		testScenario.getTaxiCfg().setRequestAcceptanceDelay(0.0);
+		final int batchDuration = 15; // batch size in seconds
+		testScenario.getRuleBasedTaxiOptimizerParams().setReoptimizationTimeStep(batchDuration);
+
+		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
+
+		// passenger_1 should take vehicle_1 and complete the ride near passenger_2
+		final double passenger1OrderSent = 0;
+		final double passenger1OrderScheduled = batchDuration;
+		testScenario.addPassenger("passenger_1", gn.linkId(0, 0, 0, 1), gn.linkId(0, 1, 1, 1), passenger1OrderSent);
+		testScenario.addVehicle("taxi_vehicle_1", gn.linkId(2, 0, 2, 1), 0.0, 1000.0);
+		final double passenger1DropoffComplete = 237;
+
+		// passenger_2 departs just before vehicle_1 completes ride, but due to batching passenger_2 should be assigned to vehicle_1 (nearby) instead of the further away vehicle_2
+		final double passenger2OrderSent = passenger1DropoffComplete - 3;
+		final double passenger2OrderScheduled = Utils.nextBatchedDispatchingTime(batchDuration, passenger2OrderSent);
+		testScenario.addPassenger("passenger_2", gn.linkId(0, 1, 0, 2), gn.linkId(2, 2, 2, 1), passenger2OrderSent);
+		testScenario.addVehicle("taxi_vehicle_2", gn.linkId(2, 1, 2, 2), 0.0, 1000.0);
+
+		List<Event> allEvents = testScenario.createController().run();
+
+		Utils.logEvents(log, allEvents);
+		Utils.expectEvents(allEvents, List.of(
+				new PartialEvent(Matchers.is(passenger1OrderSent), PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_1",null),
+				new PartialEvent(Utils.matcherAproxTime(passenger1OrderScheduled), PassengerRequestScheduledEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_1"),
+				new PartialEvent(Matchers.is(passenger2OrderSent), PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_2",null),
+				new PartialEvent(null, PassengerDroppedOffEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_1"),
+				new PartialEvent(Utils.matcherAproxTime(passenger2OrderScheduled), PassengerRequestScheduledEvent.EVENT_TYPE, "passenger_2","taxi_vehicle_1"),
+				new PartialEvent(null, PassengerDroppedOffEvent.EVENT_TYPE, "passenger_2","taxi_vehicle_1")
 		));
 	}
 }

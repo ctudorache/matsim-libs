@@ -13,7 +13,7 @@ import java.util.Map;
 public class GridNetworkGenerator {
 	final Network network;
 
-	public static enum Param {
+	public enum Param {
 		NETWORK_CAPACITY_PERIOD,
 		LINK_LENGTH,
 		LINK_FREE_SPEED,
