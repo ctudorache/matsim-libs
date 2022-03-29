@@ -67,6 +67,34 @@ public class RidesTests {
 	}
 
 	@Test
+	public void orderIsSentToAnotherDriverWhenNearbyDriverAlreadyHasAPendingConfirmation() {
+		TestScenarioGenerator testScenario = new TestScenarioGenerator();
+		final double driverAcceptanceDelay = 15; // it takes driver 15 seconds to accept the order
+		testScenario.getTaxiCfg().setRequestAcceptanceDelay(driverAcceptanceDelay);
+
+		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
+
+		testScenario.addPassenger("passenger_1", gn.linkId(0, 1, 0, 0), gn.linkId(2, 0, 2, 1), 0.0);
+		testScenario.addPassenger("passenger_2", gn.linkId(0, 1, 0, 0), gn.linkId(2, 0, 2, 1), 5.0);
+		testScenario.addVehicle("taxi_vehicle_near", gn.linkId(1, 1, 1, 0), 0.0, 1000.0);
+		testScenario.addVehicle("taxi_vehicle_far", gn.linkId(2, 1, 2, 0), 0.0, 1000.0);
+
+		List<Event> allEvents = testScenario.createController().run();
+
+		Utils.logEvents(log, allEvents);
+		Utils.expectEvents(allEvents, List.of(
+				new PartialEvent(Matchers.is(0.0), PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_1",null),
+				new PartialEvent(Matchers.is(5.0), PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_2",null),
+				new PartialEvent(Utils.matcherAproxTime(driverAcceptanceDelay), PassengerRequestScheduledEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_near"),
+				new PartialEvent(Utils.matcherAproxTime(5 + driverAcceptanceDelay), PassengerRequestScheduledEvent.EVENT_TYPE, "passenger_2","taxi_vehicle_far"),
+				new PartialEvent(null, PassengerPickedUpEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_near"),
+				new PartialEvent(null, PassengerPickedUpEvent.EVENT_TYPE, "passenger_2","taxi_vehicle_far"),
+				new PartialEvent(null, PassengerDroppedOffEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_near"),
+		 		new PartialEvent(null, PassengerDroppedOffEvent.EVENT_TYPE, "passenger_2","taxi_vehicle_far")
+		));
+	}
+
+	@Test
 	public void testOrderExpiresDuringDriverAcceptanceDelay() {
 		TestScenarioGenerator testScenario = new TestScenarioGenerator();
 		final double orderExpiresSec = 25.0;
