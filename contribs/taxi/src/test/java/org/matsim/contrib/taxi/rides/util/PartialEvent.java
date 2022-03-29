@@ -1,6 +1,7 @@
 package org.matsim.contrib.taxi.rides.util;
 
 import com.google.common.base.MoreObjects;
+import org.hamcrest.Matcher;
 import org.matsim.api.core.v01.events.Event;
 
 import javax.annotation.Nullable;
@@ -8,12 +9,12 @@ import java.util.Objects;
 
 public class PartialEvent {
 	@Nullable
-	Double time;
+	Matcher<Double> time;
 	String type;
 	String person;
 	String vehicle;
 
-	public PartialEvent(Double time, String type, String person, String vehicle) {
+	public PartialEvent(Matcher<Double> time, String type, String person, String vehicle) {
 		this.time = time;
 		this.type = type;
 		this.person = person;
@@ -22,7 +23,7 @@ public class PartialEvent {
 
 	boolean matches(Event ev) {
 		return Objects.equals(type, ev.getEventType()) &&
-				(time == null || time.equals(ev.getTime())) &&
+				(time == null || time.matches(ev.getTime())) &&
 				(person == null || person.equals(ev.getAttributes().get("person"))) &&
 				(vehicle == null || vehicle.equals(ev.getAttributes().get("vehicle")));
 	}

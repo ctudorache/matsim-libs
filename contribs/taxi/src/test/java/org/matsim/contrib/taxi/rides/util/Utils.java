@@ -1,6 +1,8 @@
 package org.matsim.contrib.taxi.rides.util;
 
 import org.apache.log4j.Logger;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.locationtech.jts.util.AssertionFailedException;
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
@@ -63,5 +65,9 @@ public class Utils {
 				partialEv = expectedIt.next();
 			}
 		}
+	}
+
+	public static Matcher<Double> matcherAproxTime(Double t) {
+		return Matchers.both(Matchers.greaterThanOrEqualTo(t)).and(Matchers.lessThanOrEqualTo(t + 3));
 	}
 }
