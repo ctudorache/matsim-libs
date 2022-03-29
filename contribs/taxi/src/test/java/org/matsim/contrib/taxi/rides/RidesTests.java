@@ -2,7 +2,6 @@ package org.matsim.contrib.taxi.rides;
 
 import org.apache.log4j.Logger;
 import org.hamcrest.Matchers;
-import org.junit.Rule;
 import org.junit.Test;
 import org.matsim.api.core.v01.events.Event;
 import org.matsim.contrib.dvrp.passenger.*;
@@ -10,18 +9,14 @@ import org.matsim.contrib.taxi.rides.util.GridNetworkGenerator;
 import org.matsim.contrib.taxi.rides.util.PartialEvent;
 import org.matsim.contrib.taxi.rides.util.TestScenarioGenerator;
 import org.matsim.contrib.taxi.rides.util.Utils;
-import org.matsim.testcases.MatsimTestUtils;
 
 import java.util.List;
 
 public class RidesTests {
 	private static final Logger log = Logger.getLogger(RidesTests.class);
 
-	@Rule
-	public final MatsimTestUtils utils = new MatsimTestUtils();
-
 	@Test
-	public void testOrderExpires() {
+	public void orderExpiresDueToNoAvailableVehicle() {
 		TestScenarioGenerator testScenario = new TestScenarioGenerator();
 		testScenario.getTaxiCfg().setMaxSearchDuration(65.0); // order issued at: 00:05 and should expire in 65 sec => 70 sec
 
@@ -44,7 +39,7 @@ public class RidesTests {
 	}
 
 	@Test
-	public void testDriverAcceptanceDelay() {
+	public void orderScheduledAccordingToDriverAcceptanceDelay() {
 		TestScenarioGenerator testScenario = new TestScenarioGenerator();
 		testScenario.getTaxiCfg().setMaxSearchDuration(65.0); // order should expire in 65 seconds
 		final double driverAcceptanceDelay = 15; // it takes driver 15 seconds to accept the order
@@ -95,7 +90,7 @@ public class RidesTests {
 	}
 
 	@Test
-	public void testOrderExpiresDuringDriverAcceptanceDelay() {
+	public void orderExpiresBecauseDriverAcceptanceDelayIsTooHigh() {
 		TestScenarioGenerator testScenario = new TestScenarioGenerator();
 		final double orderExpiresSec = 25.0;
 		testScenario.getTaxiCfg().setMaxSearchDuration(orderExpiresSec);
@@ -117,7 +112,7 @@ public class RidesTests {
 	}
 
 	@Test
-	public void testBatchedDispatching() {
+	public void batchedDispatchingSelectsNearbyFinishingOrderInsteadOfFartherFreeVehicle() {
 		TestScenarioGenerator testScenario = new TestScenarioGenerator();
 		testScenario.getTaxiCfg().setRequestAcceptanceDelay(0.0);
 		final int batchDuration = 15; // batch size in seconds
