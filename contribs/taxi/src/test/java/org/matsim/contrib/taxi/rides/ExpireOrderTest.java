@@ -45,18 +45,9 @@ public class ExpireOrderTest {
 		testScenario.addPassenger(2, gn.linkId(0, 1, 0, 2), gn.linkId(2, 2, 2, 1), 5.0);
 		testScenario.addVehicle(1, gn.linkId(1, 2, 2, 2), 0.0, 1000.0);
 
-		Controler controler = testScenario.createController();
+		List<Event> allEvents = testScenario.createController().run();
 
-		EventsCollector collector = new EventsCollector();
-		controler.getEvents().addHandler(collector);
-
-		controler.run();
-
-		List<Event> allEvents = collector.getEvents();
-		log.warn("allEvents: #" + allEvents.size());
-		for (Event ev : allEvents) {
-			log.warn(" - " + ev);
-		}
+		Utils.logEvents(log, allEvents);
 		Utils.expectEvents(allEvents, List.of(
 				new PartialEvent(0.0, PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_1",null),
 				new PartialEvent(1.0, PassengerRequestScheduledEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_1"),
@@ -64,7 +55,6 @@ public class ExpireOrderTest {
 				new PartialEvent(71.0, PassengerRequestRejectedEvent.EVENT_TYPE, "passenger_2",null),
 				new PartialEvent(null, PassengerDroppedOffEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_1")
 		));
-
 	}
 
 	@Test

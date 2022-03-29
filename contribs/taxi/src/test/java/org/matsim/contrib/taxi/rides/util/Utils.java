@@ -1,5 +1,6 @@
 package org.matsim.contrib.taxi.rides.util;
 
+import org.apache.log4j.Logger;
 import org.locationtech.jts.util.AssertionFailedException;
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
@@ -30,6 +31,19 @@ public class Utils {
 		var link5 = NetworkUtils.createAndAddLink(network, Id.create("5", Link.class), node5, node6, 105, 100, 3600, 1);
 
 		return List.of(link1, link2, link3, link4, link5);
+	}
+
+	public static void logEvents(Logger log, List<Event> events) {
+	  logEvents(log, events, Integer.MAX_VALUE);
+	}
+	public static void logEvents(Logger log, List<Event> events, int count) {
+	  log.info("#" + events.size() + ":");
+	  for (int i = 0; i < events.size() && i < count; ++i) {
+	    log.info(" - " + events.get(i));
+	  }
+	  if (count < events.size()) {
+	    log.info(" - ... total: " + events.size());
+	  }
 	}
 
 	public static void expectEvents(List<Event> actual, List<PartialEvent> expected) {
