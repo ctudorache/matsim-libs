@@ -14,8 +14,8 @@ import org.matsim.testcases.MatsimTestUtils;
 
 import java.util.List;
 
-public class ExpireOrderTest {
-	private static final Logger log = Logger.getLogger(ExpireOrderTest.class);
+public class RidesTests {
+	private static final Logger log = Logger.getLogger(RidesTests.class);
 
 	@Rule
 	public final MatsimTestUtils utils = new MatsimTestUtils();
