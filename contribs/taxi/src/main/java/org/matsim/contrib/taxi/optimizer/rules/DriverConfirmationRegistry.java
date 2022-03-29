@@ -24,7 +24,7 @@ public class DriverConfirmationRegistry {
 	}
 
 	public DriverConfirmation addDriverConfirmation(TaxiRequest request, DvrpVehicle vehicle, VrpPathWithTravelData pathToPickup) {
-		DriverConfirmation dc = new DriverConfirmation(request, vehicle, pathToPickup, timer.getTimeOfDay() + taxiCfg.getRequestAcceptanceDelay());
+		DriverConfirmation dc = new DriverConfirmation(request, vehicle, pathToPickup, timer.getTimeOfDay() + taxiCfg.getDriverConfirmationDelay());
 		updateDriverConfirmation(dc);
 		if (!dc.isComplete()) {
 			log.warn("CTudorache addDriverConfirmation: " + dc);

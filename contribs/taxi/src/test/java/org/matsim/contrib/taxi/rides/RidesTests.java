@@ -43,7 +43,7 @@ public class RidesTests {
 		TestScenarioGenerator testScenario = new TestScenarioGenerator();
 		testScenario.getTaxiCfg().setMaxSearchDuration(65.0); // order should expire in 65 seconds
 		final double driverAcceptanceDelay = 15; // it takes driver 15 seconds to accept the order
-		testScenario.getTaxiCfg().setRequestAcceptanceDelay(driverAcceptanceDelay);
+		testScenario.getTaxiCfg().setDriverConfirmationDelay(driverAcceptanceDelay);
 
 		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
 
@@ -65,7 +65,7 @@ public class RidesTests {
 	public void orderIsSentToAnotherDriverWhenNearbyDriverAlreadyHasAPendingConfirmation() {
 		TestScenarioGenerator testScenario = new TestScenarioGenerator();
 		final double driverAcceptanceDelay = 15; // it takes driver 15 seconds to accept the order
-		testScenario.getTaxiCfg().setRequestAcceptanceDelay(driverAcceptanceDelay);
+		testScenario.getTaxiCfg().setDriverConfirmationDelay(driverAcceptanceDelay);
 
 		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
 
@@ -95,7 +95,7 @@ public class RidesTests {
 		final double orderExpiresSec = 25.0;
 		testScenario.getTaxiCfg().setMaxSearchDuration(orderExpiresSec);
 		final double driverAcceptanceDelay = 35; // order should expire while waiting for driver confirmation
-		testScenario.getTaxiCfg().setRequestAcceptanceDelay(driverAcceptanceDelay);
+		testScenario.getTaxiCfg().setDriverConfirmationDelay(driverAcceptanceDelay);
 
 		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
 
@@ -114,7 +114,7 @@ public class RidesTests {
 	@Test
 	public void batchedDispatchingSelectsNearbyFinishingOrderInsteadOfFartherFreeVehicle() {
 		TestScenarioGenerator testScenario = new TestScenarioGenerator();
-		testScenario.getTaxiCfg().setRequestAcceptanceDelay(0.0);
+		testScenario.getTaxiCfg().setDriverConfirmationDelay(0.0);
 		final int batchDuration = 15; // batch size in seconds
 		testScenario.getRuleBasedTaxiOptimizerParams().setReoptimizationTimeStep(batchDuration);
 
