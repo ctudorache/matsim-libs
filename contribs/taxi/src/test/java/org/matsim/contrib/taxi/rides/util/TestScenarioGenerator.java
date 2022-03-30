@@ -49,7 +49,7 @@ public class TestScenarioGenerator {
 
 	private VehicleType taxiVehicleType;
 
-	public TestScenarioGenerator(Class<? extends AbstractTaxiOptimizerParams> taxiOptimizerParams) {
+	public TestScenarioGenerator(AbstractTaxiOptimizerParams taxiOptimizerParams) {
 		buildConfig(taxiOptimizerParams);
 	}
 
@@ -59,7 +59,7 @@ public class TestScenarioGenerator {
 	 * - AssignmentTaxiOptimizerParams
 	 * - ZonalTaxiOptimizerParams
 	 */
-	private void buildConfig(Class<? extends AbstractTaxiOptimizerParams> taxiOptimizerParams) {
+	private void buildConfig(AbstractTaxiOptimizerParams taxiOptimizerParams) {
 		TaxiConfigGroup taxiCfgGen = new TaxiConfigGroup();
 		taxiCfgGen.setBreakSimulationIfNotAllRequestsServed(false);
 		taxiCfgGen.setDestinationKnown(false);
@@ -69,11 +69,7 @@ public class TestScenarioGenerator {
 		taxiCfgGen.setTimeProfiles(true);
 		taxiCfgGen.setDetailedStats(true);
 
-		try {
-			taxiCfgGen.addParameterSet(taxiOptimizerParams.getDeclaredConstructor().newInstance());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		taxiCfgGen.addParameterSet(taxiOptimizerParams);
 		log.warn("CTudorache taxiCfgGen: " + taxiCfgGen);
 
 		MultiModeTaxiConfigGroup multiModeTaxiConfigGroup = new MultiModeTaxiConfigGroup();

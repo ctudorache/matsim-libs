@@ -3,22 +3,56 @@ package org.matsim.contrib.taxi.rides;
 import org.apache.log4j.Logger;
 import org.hamcrest.Matchers;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.matsim.api.core.v01.events.Event;
 import org.matsim.contrib.dvrp.passenger.*;
+import org.matsim.contrib.taxi.optimizer.AbstractTaxiOptimizerParams;
+import org.matsim.contrib.taxi.optimizer.assignment.AssignmentTaxiOptimizerParams;
 import org.matsim.contrib.taxi.optimizer.rules.RuleBasedTaxiOptimizerParams;
 import org.matsim.contrib.taxi.rides.util.GridNetworkGenerator;
 import org.matsim.contrib.taxi.rides.util.PartialEvent;
 import org.matsim.contrib.taxi.rides.util.TestScenarioGenerator;
 import org.matsim.contrib.taxi.rides.util.Utils;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
+@RunWith(Parameterized.class)
 public class RidesTests {
 	private static final Logger log = Logger.getLogger(RidesTests.class);
 
+	private String taxiOptimizerParamsSetName;
+	private AbstractTaxiOptimizerParams taxiOptimizerParams;
+
+	public RidesTests(String taxiOptimizerParamsSetName) {
+		this.taxiOptimizerParamsSetName = taxiOptimizerParamsSetName;
+		switch (taxiOptimizerParamsSetName) {
+			case RuleBasedTaxiOptimizerParams.SET_NAME:
+				taxiOptimizerParams = new RuleBasedTaxiOptimizerParams();
+				break;
+			case AssignmentTaxiOptimizerParams.SET_NAME:
+				taxiOptimizerParams = new AssignmentTaxiOptimizerParams();
+				break;
+			default:
+				throw new RuntimeException("Invalid taxiOptimizerParamsSetName: " + taxiOptimizerParamsSetName);
+		}
+	}
+
+	// Each parameter here will trigger a new RidesTest(...param) which runs all tests.
+	@Parameterized.Parameters(name = "{index}: taxiOptimizerParamsSetName={0}")
+	public static Collection taxiOptimizers() {
+		return Arrays.asList(new Object[][] {
+				{ RuleBasedTaxiOptimizerParams.SET_NAME },
+				{ AssignmentTaxiOptimizerParams.SET_NAME },
+		});
+	}
+
 	@Test
 	public void orderExpiresDueToNoAvailableVehicle() {
-		TestScenarioGenerator testScenario = new TestScenarioGenerator(RuleBasedTaxiOptimizerParams.class);
+		log.warn("CTudorache running test, taxiOptimizerParamsSetName: " + taxiOptimizerParamsSetName);
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(taxiOptimizerParams);
 		testScenario.getTaxiCfg().setMaxSearchDuration(65.0); // order issued at: 00:05 and should expire in 65 sec => 70 sec
 
 		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
@@ -40,8 +74,8 @@ public class RidesTests {
 	}
 
 	@Test
-	public void orderScheduledAccordingToDriverAcceptanceDelay() {
-		TestScenarioGenerator testScenario = new TestScenarioGenerator(RuleBasedTaxiOptimizerParams.class);
+	public void orderScheduledAfterDriverConfirmationDelay() {
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(new RuleBasedTaxiOptimizerParams());
 		testScenario.getTaxiCfg().setMaxSearchDuration(65.0); // order should expire in 65 seconds
 		final double driverAcceptanceDelay = 15; // it takes driver 15 seconds to accept the order
 		testScenario.getTaxiCfg().setDriverConfirmationDelay(driverAcceptanceDelay);
@@ -64,7 +98,7 @@ public class RidesTests {
 
 	@Test
 	public void orderIsSentToAnotherDriverWhenNearbyDriverAlreadyHasAPendingConfirmation() {
-		TestScenarioGenerator testScenario = new TestScenarioGenerator(RuleBasedTaxiOptimizerParams.class);
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(new RuleBasedTaxiOptimizerParams());
 		final double driverAcceptanceDelay = 15; // it takes driver 15 seconds to accept the order
 		testScenario.getTaxiCfg().setDriverConfirmationDelay(driverAcceptanceDelay);
 
@@ -92,7 +126,7 @@ public class RidesTests {
 
 	@Test
 	public void orderExpiresBecauseDriverAcceptanceDelayIsTooHigh() {
-		TestScenarioGenerator testScenario = new TestScenarioGenerator(RuleBasedTaxiOptimizerParams.class);
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(new RuleBasedTaxiOptimizerParams());
 		final double orderExpiresSec = 25.0;
 		testScenario.getTaxiCfg().setMaxSearchDuration(orderExpiresSec);
 		final double driverAcceptanceDelay = 35; // order should expire while waiting for driver confirmation
@@ -114,7 +148,7 @@ public class RidesTests {
 
 	@Test
 	public void batchedDispatchingSelectsNearbyFinishingOrderInsteadOfFartherFreeVehicle() {
-		TestScenarioGenerator testScenario = new TestScenarioGenerator(RuleBasedTaxiOptimizerParams.class);
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(new RuleBasedTaxiOptimizerParams());
 		testScenario.getTaxiCfg().setDriverConfirmationDelay(0.0);
 		final int batchDuration = 15; // batch size in seconds
 		testScenario.getRuleBasedTaxiOptimizerParams().setReoptimizationTimeStep(batchDuration);
