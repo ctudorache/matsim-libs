@@ -5,6 +5,7 @@ import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.matsim.api.core.v01.events.Event;
 import org.matsim.contrib.dvrp.passenger.*;
+import org.matsim.contrib.taxi.optimizer.rules.RuleBasedTaxiOptimizerParams;
 import org.matsim.contrib.taxi.rides.util.GridNetworkGenerator;
 import org.matsim.contrib.taxi.rides.util.PartialEvent;
 import org.matsim.contrib.taxi.rides.util.TestScenarioGenerator;
@@ -17,7 +18,7 @@ public class RidesTests {
 
 	@Test
 	public void orderExpiresDueToNoAvailableVehicle() {
-		TestScenarioGenerator testScenario = new TestScenarioGenerator();
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(RuleBasedTaxiOptimizerParams.class);
 		testScenario.getTaxiCfg().setMaxSearchDuration(65.0); // order issued at: 00:05 and should expire in 65 sec => 70 sec
 
 		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
@@ -40,7 +41,7 @@ public class RidesTests {
 
 	@Test
 	public void orderScheduledAccordingToDriverAcceptanceDelay() {
-		TestScenarioGenerator testScenario = new TestScenarioGenerator();
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(RuleBasedTaxiOptimizerParams.class);
 		testScenario.getTaxiCfg().setMaxSearchDuration(65.0); // order should expire in 65 seconds
 		final double driverAcceptanceDelay = 15; // it takes driver 15 seconds to accept the order
 		testScenario.getTaxiCfg().setDriverConfirmationDelay(driverAcceptanceDelay);
@@ -63,7 +64,7 @@ public class RidesTests {
 
 	@Test
 	public void orderIsSentToAnotherDriverWhenNearbyDriverAlreadyHasAPendingConfirmation() {
-		TestScenarioGenerator testScenario = new TestScenarioGenerator();
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(RuleBasedTaxiOptimizerParams.class);
 		final double driverAcceptanceDelay = 15; // it takes driver 15 seconds to accept the order
 		testScenario.getTaxiCfg().setDriverConfirmationDelay(driverAcceptanceDelay);
 
@@ -91,7 +92,7 @@ public class RidesTests {
 
 	@Test
 	public void orderExpiresBecauseDriverAcceptanceDelayIsTooHigh() {
-		TestScenarioGenerator testScenario = new TestScenarioGenerator();
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(RuleBasedTaxiOptimizerParams.class);
 		final double orderExpiresSec = 25.0;
 		testScenario.getTaxiCfg().setMaxSearchDuration(orderExpiresSec);
 		final double driverAcceptanceDelay = 35; // order should expire while waiting for driver confirmation
@@ -113,7 +114,7 @@ public class RidesTests {
 
 	@Test
 	public void batchedDispatchingSelectsNearbyFinishingOrderInsteadOfFartherFreeVehicle() {
-		TestScenarioGenerator testScenario = new TestScenarioGenerator();
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(RuleBasedTaxiOptimizerParams.class);
 		testScenario.getTaxiCfg().setDriverConfirmationDelay(0.0);
 		final int batchDuration = 15; // batch size in seconds
 		testScenario.getRuleBasedTaxiOptimizerParams().setReoptimizationTimeStep(batchDuration);

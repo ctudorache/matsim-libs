@@ -18,6 +18,7 @@ import org.matsim.contrib.dvrp.run.DvrpConfigGroup;
 import org.matsim.contrib.dvrp.run.DvrpQSimComponents;
 import org.matsim.contrib.taxi.analysis.TaxiEventSequenceCollector;
 import org.matsim.contrib.taxi.benchmark.TaxiBenchmarkStats;
+import org.matsim.contrib.taxi.optimizer.AbstractTaxiOptimizerParams;
 import org.matsim.contrib.taxi.optimizer.rules.RuleBasedTaxiOptimizerParams;
 import org.matsim.contrib.taxi.run.MultiModeTaxiConfigGroup;
 import org.matsim.contrib.taxi.run.MultiModeTaxiModule;
@@ -35,6 +36,7 @@ import org.matsim.vehicles.Vehicle;
 import org.matsim.vehicles.VehicleType;
 import org.matsim.vehicles.VehicleUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
@@ -47,11 +49,17 @@ public class TestScenarioGenerator {
 
 	private VehicleType taxiVehicleType;
 
-	public TestScenarioGenerator() {
-		buildConfig();
+	public TestScenarioGenerator(Class<? extends AbstractTaxiOptimizerParams> taxiOptimizerParams) {
+		buildConfig(taxiOptimizerParams);
 	}
 
-	private void buildConfig() {
+	/**
+	 * @param taxiOptimizerParams Controls the optimizer used for dispatching. Use one of:
+	 * - RuleBasedTaxiOptimizerParams
+	 * - AssignmentTaxiOptimizerParams
+	 * - ZonalTaxiOptimizerParams
+	 */
+	private void buildConfig(Class<? extends AbstractTaxiOptimizerParams> taxiOptimizerParams) {
 		TaxiConfigGroup taxiCfgGen = new TaxiConfigGroup();
 		taxiCfgGen.setBreakSimulationIfNotAllRequestsServed(false);
 		taxiCfgGen.setDestinationKnown(false);
@@ -61,10 +69,11 @@ public class TestScenarioGenerator {
 		taxiCfgGen.setTimeProfiles(true);
 		taxiCfgGen.setDetailedStats(true);
 
-		RuleBasedTaxiOptimizerParams ruleParams = new RuleBasedTaxiOptimizerParams();
-		ruleParams.setReoptimizationTimeStep(1);
-		ruleParams.setNearestVehiclesLimit(30);
-		taxiCfgGen.addParameterSet(ruleParams);
+		try {
+			taxiCfgGen.addParameterSet(taxiOptimizerParams.getDeclaredConstructor().newInstance());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		log.warn("CTudorache taxiCfgGen: " + taxiCfgGen);
 
 		MultiModeTaxiConfigGroup multiModeTaxiConfigGroup = new MultiModeTaxiConfigGroup();
