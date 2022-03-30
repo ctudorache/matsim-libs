@@ -45,7 +45,7 @@ public class BestDispatchFinder {
 		public String toString() {
 			return MoreObjects.toStringHelper(this)
 					.add("vehicle", vehicle)
-					.add("dest", destination)
+					.add("dest(req)", destination)
 					.add("path", path)
 					.toString();
 		}

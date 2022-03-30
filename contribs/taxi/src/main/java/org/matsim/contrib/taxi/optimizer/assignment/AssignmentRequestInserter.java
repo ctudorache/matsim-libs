@@ -81,9 +81,27 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 		if (vData.getSize() == 0) {
 			return;
 		}
+		double vehPlanningHorizonSec;
+		String vehPlanningHorizonName;
+		if (vData.getIdleCount() < rData.getUrgentReqCount()) {
+			vehPlanningHorizonSec = params.getVehPlanningHorizonUndersupply();
+			vehPlanningHorizonName = "undersupply";
+		} else {
+			vehPlanningHorizonSec = params.getVehPlanningHorizonOversupply();
+			vehPlanningHorizonName = "oversupply";
+		}
+		log.warn("CTudorache scheduleUnplannedRequests"
+				+ ", req urgent/all: " + rData.getSize() + " / " + rData.getUrgentReqCount()
+				+ ", taxi idle/all: " + vData.getSize() + " / " + vData.getIdleCount()
+		        + ", horizon: " + vehPlanningHorizonSec + " (" + vehPlanningHorizonName + ")");
 
 		AssignmentCost<TaxiRequest> cost = assignmentCostProvider.getCost(rData, vData);
 		List<Dispatch<TaxiRequest>> assignments = assignmentProblem.findAssignments(vData, rData, cost);
+
+		log.warn("CTudorache scheduleUnplannedRequests dispatching: #" + assignments.size());
+		for (Dispatch<TaxiRequest> a : assignments) {
+			log.warn(" - " + a);
+		}
 
 		for (Dispatch<TaxiRequest> a : assignments) {
 			scheduler.scheduleRequest(a.vehicle, a.destination, a.path);
