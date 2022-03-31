@@ -106,7 +106,7 @@ public class TestScenarioGenerator {
 
 		// sanity check
 		log.warn("CTudorache resultTaxiCfg: " + getTaxiCfg());
-		log.warn("CTudorache resultRuleParams: " + getRuleBasedTaxiOptimizerParams());
+		log.warn("CTudorache resultRuleParams: " + getTaxiOptimizerParams());
 	}
 
 	// TODO(CTudorache): could be moved to buildConfig(), after scenario creation
@@ -119,6 +119,9 @@ public class TestScenarioGenerator {
 	}
 	public TaxiConfigGroup getTaxiCfg() {
 		return TaxiConfigGroup.getSingleModeTaxiConfig(config);
+	}
+	public AbstractTaxiOptimizerParams getTaxiOptimizerParams() {
+		return getTaxiCfg().getTaxiOptimizerParams();
 	}
 	public RuleBasedTaxiOptimizerParams getRuleBasedTaxiOptimizerParams() {
 		TaxiConfigGroup taxiCfg = getTaxiCfg();

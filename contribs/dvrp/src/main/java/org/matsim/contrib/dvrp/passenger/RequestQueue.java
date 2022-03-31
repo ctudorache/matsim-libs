@@ -20,11 +20,8 @@
 
 package org.matsim.contrib.dvrp.passenger;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.matsim.contrib.dvrp.optimizer.Request;
 
@@ -101,6 +98,10 @@ public final class RequestQueue<R extends PassengerRequest> {
 		return request.getEarliestStartTime() <= lastTimeStep + planningHorizon;
 	}
 
+	private boolean isExpired(R request) {
+		return request.getLatestStartTime() < lastTimeStep;
+	}
+
 	/**
 	 * Assumes external code can modify schedulableRequests (e.g. remove scheduled requests and add unscheduled ones)
 	 *
@@ -108,5 +109,22 @@ public final class RequestQueue<R extends PassengerRequest> {
 	 */
 	public Collection<R> getSchedulableRequests() {
 		return schedulableRequests;
+	}
+
+	/**
+	 * Removes from schedulableRequests those which have expired.
+	 * @return list of expired requests
+	 */
+	public Collection<R> removeExpiredRequests() {
+		List<R> expiredRequests = new ArrayList<>();
+		Iterator<R> it = schedulableRequests.iterator();
+		while (it.hasNext()) {
+			R req = it.next();
+			if (isExpired(req)) {
+				expiredRequests.add(req);
+				it.remove();
+			}
+		}
+		return expiredRequests;
 	}
 }

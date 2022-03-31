@@ -53,22 +53,22 @@ public class RidesTests {
 	public void orderExpiresDueToNoAvailableVehicle() {
 		log.warn("CTudorache running test, taxiOptimizerParamsSetName: " + taxiOptimizerParamsSetName);
 		TestScenarioGenerator testScenario = new TestScenarioGenerator(taxiOptimizerParams);
-		testScenario.getTaxiCfg().setMaxSearchDuration(65.0); // order issued at: 00:05 and should expire in 65 sec => 70 sec
+		testScenario.getTaxiCfg().setMaxSearchDuration(60.0); // order issued at: 00:65 and should expire in 60 sec => 125 sec
 
 		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
 
 		testScenario.addPassenger("passenger_1", gn.linkId(0, 1, 0, 0), gn.linkId(2, 0, 2, 1), 0.0);
-		testScenario.addPassenger("passenger_2", gn.linkId(0, 1, 0, 2), gn.linkId(2, 2, 2, 1), 5.0);
+		testScenario.addPassenger("passenger_2", gn.linkId(0, 1, 0, 2), gn.linkId(2, 2, 2, 1), 65.0);
 		testScenario.addVehicle("taxi_vehicle_1", gn.linkId(1, 2, 2, 2), 0.0, 1000.0);
 
 		List<Event> allEvents = testScenario.createController().run();
 
 		Utils.logEvents(log, allEvents);
 		Utils.expectEvents(allEvents, List.of(
-				new PartialEvent(Matchers.is(0.0), PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_1",null),
-				new PartialEvent(Matchers.is(1.0), PassengerRequestScheduledEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_1"),
-				new PartialEvent(Matchers.is(5.0), PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_2",null),
-				new PartialEvent(Utils.matcherAproxTime(70.0), PassengerRequestRejectedEvent.EVENT_TYPE, "passenger_2",null),
+				new PartialEvent(null, PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_1",null),
+				new PartialEvent(null, PassengerRequestScheduledEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_1"),
+				new PartialEvent(null, PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_2",null),
+				new PartialEvent(Utils.matcherAproxTime(125.0), PassengerRequestRejectedEvent.EVENT_TYPE, "passenger_2",null),
 				new PartialEvent(null, PassengerDroppedOffEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_1")
 		));
 	}

@@ -72,7 +72,7 @@ public class Utils {
 	}
 
 	public static Matcher<Double> matcherAproxTime(Double t) {
-		return Matchers.both(Matchers.greaterThanOrEqualTo(t)).and(Matchers.lessThanOrEqualTo(t + 3));
+		return Matchers.both(Matchers.greaterThanOrEqualTo(t)).and(Matchers.lessThanOrEqualTo(t + 30));
 	}
 
 	public static double nextBatchedDispatchingTime(int batchDuration, double t) {

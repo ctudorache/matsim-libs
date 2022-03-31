@@ -86,9 +86,6 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 		} else {
 			scheduleUnplannedRequestsImpl(unplannedRequests);// reduce T_W (regular NOS)
 		}
-
-		// TODO(CTudorache) call expireRequests based on config param (should be enabled)
-		expireUnplannedOldRequests(unplannedRequests, now);
 	}
 
 	public enum Goal {
@@ -216,19 +213,6 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 			log.warn("CTudorache req planned, removing from unplanned");
 			unplannedRequests.remove(dc.request);
 			unplannedRequestRegistry.removeRequest(dc.request);
-		}
-	}
-
-	private void expireUnplannedOldRequests(Collection<TaxiRequest> unplannedRequests, double now) {
-		Iterator<TaxiRequest> reqIter = unplannedRequests.iterator();
-		while (reqIter.hasNext()) {
-			TaxiRequest req = reqIter.next();
-			if (req.getLatestStartTime() < now) {
-				log.warn("ExpiredRequest: " + req);
-				reqIter.remove();
-				scheduler.requestExpired(req);
-				driverConfirmationRegistry.removeDriverConfirmation(req);
-			}
 		}
 	}
 }

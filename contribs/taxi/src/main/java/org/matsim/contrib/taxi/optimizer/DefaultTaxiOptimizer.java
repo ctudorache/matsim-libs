@@ -21,6 +21,8 @@ package org.matsim.contrib.taxi.optimizer;
 
 import static org.matsim.contrib.taxi.schedule.TaxiTaskBaseType.OCCUPIED_DRIVE;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -94,6 +96,10 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 
 			requestInserter.scheduleUnplannedRequests(unplannedRequests.getSchedulableRequests());
 
+			if (taxiCfg.getMaxSearchDuration() > 0) {
+				expireUnplannedOldRequests();
+			}
+
 			if (params.doUnscheduleAwaitingRequests && taxiCfg.isVehicleDiversion()) {
 				scheduler.stopAllAimlessDriveTasks();
 			}
@@ -134,5 +140,9 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 
 	protected void setRequiresReoptimization(boolean requiresReoptimization) {
 		this.requiresReoptimization = requiresReoptimization;
+	}
+
+	private void expireUnplannedOldRequests() {
+		unplannedRequests.removeExpiredRequests().forEach(scheduler::requestExpired);
 	}
 }

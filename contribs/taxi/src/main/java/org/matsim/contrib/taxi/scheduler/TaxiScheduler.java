@@ -290,6 +290,7 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 	}
 
 	public void requestExpired(TaxiRequest req) {
+		log.warn("requestExpired: " + req);
 		eventsManager.processEvent(new PassengerRequestRejectedEvent(
 				mobsimTimer.getTimeOfDay(), req.getMode(), req.getId(), req.getPassengerId(), REQUEST_EXPIRED));
 	}
