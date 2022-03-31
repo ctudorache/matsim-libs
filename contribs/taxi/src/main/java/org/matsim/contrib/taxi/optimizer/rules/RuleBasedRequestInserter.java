@@ -190,9 +190,14 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 				Stream<TaxiRequest> selectedReqs = unplannedRequests.size() > nearestRequestsLimit ?
 						unplannedRequestRegistry.findNearestRequests(link.getToNode(), nearestRequestsLimit) :
 						unplannedRequests.stream();
+				selectedReqs = selectedReqs.filter(r -> !driverConfirmationRegistry.isWaitingDriverConfirmation(r));
 
 				BestDispatchFinder.Dispatch<TaxiRequest> best = dispatchFinder.findBestRequestForVehicle(veh, selectedReqs);
 				log.warn("CTudorache scheduleIdleVehiclesImpl best dispatch: " + best);
+				if (best == null) {
+					// Happens when selectedReq is empty (e.g. all requests are waiting for driver confirmation)
+					return;
+				}
 
 				dc = driverConfirmationRegistry.addDriverConfirmation(best.destination, best.vehicle, best.path);
 			}

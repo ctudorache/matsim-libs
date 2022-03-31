@@ -168,6 +168,9 @@ public class BestDispatchFinder {
 		}
 
 		Path path = multiSourceALT.calcLeastCostPath(destinationNodes.values(), vehicleNode, null, null, true);
+		if (path == null) {
+			return null;
+		}
 
 		// the calculated path contains real nodes (no imaginary/initial nodes),
 		// the time and cost are of real travel (between the first and last real node)

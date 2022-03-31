@@ -41,7 +41,7 @@ public class RidesTests {
 	}
 
 	// Each parameter here will trigger a new RidesTest(...param) which runs all tests.
-	@Parameterized.Parameters(name = "{index}: taxiOptimizerParamsSetName={0}")
+	@Parameterized.Parameters(name = "{index}: taxiOptimizer={0}")
 	public static Collection taxiOptimizers() {
 		return Arrays.asList(new Object[][] {
 				{ RuleBasedTaxiOptimizerParams.SET_NAME },
@@ -75,9 +75,9 @@ public class RidesTests {
 
 	@Test
 	public void orderScheduledAfterDriverConfirmationDelay() {
-		TestScenarioGenerator testScenario = new TestScenarioGenerator(new RuleBasedTaxiOptimizerParams());
-		testScenario.getTaxiCfg().setMaxSearchDuration(65.0); // order should expire in 65 seconds
-		final double driverAcceptanceDelay = 15; // it takes driver 15 seconds to accept the order
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(taxiOptimizerParams);
+		testScenario.getTaxiCfg().setMaxSearchDuration(125.0); // order should expire in 125 seconds
+		final double driverAcceptanceDelay = 60; // it takes driver 60 seconds to accept the order
 		testScenario.getTaxiCfg().setDriverConfirmationDelay(driverAcceptanceDelay);
 
 		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);

@@ -80,7 +80,8 @@ public class DefaultTaxiOptimizerProvider implements Provider<TaxiOptimizer> {
 		switch (taxiCfg.getTaxiOptimizerParams().getName()) {
 			case AssignmentTaxiOptimizerParams.SET_NAME: {
 				var requestInserter = new AssignmentRequestInserter(fleet, network, timer, travelTime, travelDisutility,
-						scheduler, (AssignmentTaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams());
+						scheduler, (AssignmentTaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams(),
+						createDriverConfirmationRegistry());
 				return new DefaultTaxiOptimizer(eventsManager, taxiCfg, fleet, scheduler, scheduleTimingUpdater,
 						requestInserter);
 			}

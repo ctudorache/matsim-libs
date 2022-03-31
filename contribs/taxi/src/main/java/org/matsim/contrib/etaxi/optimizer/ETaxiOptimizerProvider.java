@@ -88,7 +88,8 @@ public class ETaxiOptimizerProvider implements Provider<TaxiOptimizer> {
 			LeastCostPathCalculator router = new SpeedyALTFactory().createPathCalculator(network, travelDisutility,
 					travelTime);
 			return new AssignmentETaxiOptimizer(eventsManager, taxiCfg, fleet, timer, network, travelTime,
-					travelDisutility, eScheduler, scheduleTimingUpdater, chargingInfrastructure, router);
+					travelDisutility, eScheduler, scheduleTimingUpdater, chargingInfrastructure, router,
+					createDriverConfirmationRegistry());
 		} else {
 			throw new RuntimeException(
 					"Unsupported taxi optimizer type: " + taxiCfg.getTaxiOptimizerParams().getName());

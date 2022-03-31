@@ -65,6 +65,9 @@ public class DriverConfirmationRegistry {
 	public boolean isWaitingDriverConfirmation(DvrpVehicle v) {
 		return getDriverConfirmation(v) != null;
 	}
+	public boolean isWaitingDriverConfirmation(TaxiRequest r) {
+		return getDriverConfirmation(r) != null;
+	}
 
 	// set decision for those that are due
 	public void updateForCurrentTime() {

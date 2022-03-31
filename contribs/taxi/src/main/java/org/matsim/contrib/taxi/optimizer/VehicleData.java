@@ -27,6 +27,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.matsim.api.core.v01.network.Link;
 import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
 import org.matsim.contrib.dvrp.util.LinkTimePair;
+import org.matsim.contrib.taxi.optimizer.rules.DriverConfirmationRegistry;
 import org.matsim.contrib.taxi.scheduler.TaxiScheduleInquiry;
 
 /**
@@ -53,21 +54,29 @@ public class VehicleData {
 	private final int idleCount;
 
 	public VehicleData(double currentTime, TaxiScheduleInquiry scheduleInquiry,
-			Stream<? extends DvrpVehicle> vehicles) {
-		this(currentTime, scheduleInquiry, vehicles, NO_PLANNING_HORIZON);
+			Stream<? extends DvrpVehicle> vehicles, DriverConfirmationRegistry driverConfirmationRegistry) {
+		this(currentTime, scheduleInquiry, vehicles, NO_PLANNING_HORIZON, driverConfirmationRegistry);
 	}
 
 	// skipping vehicles with departure.time > curr_time + maxDepartureDelay
 	public VehicleData(double currentTime, TaxiScheduleInquiry scheduleInquiry, Stream<? extends DvrpVehicle> vehicles,
-			double planningHorizon) {
+					   double planningHorizon, DriverConfirmationRegistry driverConfirmationRegistry) {
 		double maxDepartureTime = currentTime + planningHorizon;
 
 		MutableInt idx = new MutableInt();
 		MutableInt idleCounter = new MutableInt();
 		vehicles.forEach(v -> {
+			// ignore vehicles which are waiting on driver confirmation
+			if (driverConfirmationRegistry != null &&
+					driverConfirmationRegistry.isWaitingDriverConfirmation(v)
+			) {
+				return;
+			}
+
 			LinkTimePair departure = scheduleInquiry.getImmediateDiversionOrEarliestIdleness(v);
 
 			if (departure != null && departure.time <= maxDepartureTime) {
+				// NOTE: vehicle is eligible for assignment. It could be already idle, or become idle in the near future.
 				boolean idle = scheduleInquiry.isIdle(v);
 				entries.add(new Entry(idx.getAndIncrement(), v, departure.link, departure.time, idle));
 				if (idle) {
