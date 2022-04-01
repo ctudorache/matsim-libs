@@ -78,6 +78,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 		log.warn("CTudorache scheduleUnplannedRequests #" + unplannedRequests.size());
 
 		// schedule requests which are confirmed
+		List<DriverConfirmation> requestsToSchedule = new ArrayList<>();
 		List<TaxiRequest> requestsToPlan = new ArrayList<>();
 		for (TaxiRequest r : unplannedRequests) {
 			DriverConfirmation dc = driverConfirmationRegistry().getDriverConfirmation(r);
@@ -89,45 +90,59 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 				continue;
 			}
 			assert dc.isAccepted();
+			requestsToSchedule.add(dc);
+		}
+
+		do {
+			// advance request not considered => horizon==0
+			AssignmentRequestData rData = AssignmentRequestData.create(timer.getTimeOfDay(), 0, requestsToPlan);
+//			if (rData.getSize() == 0) {
+//				break;
+//			}
+			VehicleData vData = initVehicleData(rData);
+//			if (vData.getSize() == 0) {
+//				break;
+//			}
+			double vehPlanningHorizonSec;
+			String vehPlanningHorizonName;
+			long idleVehs = fleet.getVehicles().values().stream().filter(scheduler.getScheduleInquiry()::isIdle).count();
+			if (idleVehs < rData.getUrgentReqCount()) {
+				vehPlanningHorizonSec = params.getVehPlanningHorizonUndersupply();
+				vehPlanningHorizonName = "undersupply (veh < req)";
+			} else {
+				vehPlanningHorizonSec = params.getVehPlanningHorizonOversupply();
+				vehPlanningHorizonName = "oversupply (veh >= req)";
+			}
+			log.warn("CTudorache scheduleUnplannedRequests"
+					+ ", req urgent/all: " + rData.getSize() + "/" + rData.getUrgentReqCount()
+					+ ", taxi idle/all: " + vData.getSize() + "/" + vData.getIdleCount()
+					+ ", horizon: " + vehPlanningHorizonSec + " (" + vehPlanningHorizonName + ")");
+
+			AssignmentCost<TaxiRequest> cost = assignmentCostProvider.getCost(rData, vData);
+			List<Dispatch<TaxiRequest>> assignments = assignmentProblem.findAssignments(vData, rData, cost);
+
+			log.warn("CTudorache scheduleUnplannedRequests dispatching: #" + assignments.size());
+			for (Dispatch<TaxiRequest> a : assignments) {
+				log.warn(" - " + a);
+			}
+
+			// create DriverConfirmation for all the requests. If the driver confirmation is instant, then proceed with schedule.
+			for (Dispatch<TaxiRequest> a : assignments) {
+				DriverConfirmation dc = driverConfirmationRegistry().addDriverConfirmation(a.destination, a.vehicle, a.path);
+				if (dc.isComplete()) {
+					assert dc.isAccepted();
+					requestsToSchedule.add(dc);
+				}
+			}
+		} while (false);
+
+		// schedule the confirmed requests
+		for (DriverConfirmation dc : requestsToSchedule) {
+			assert dc.isAccepted();
 			scheduler.scheduleRequest(dc.vehicle, dc.request, dc.getPathToPickup(timer.getTimeOfDay()));
 			unplannedRequests.remove(dc.request);
 		}
 
-		// advance request not considered => horizon==0
-		AssignmentRequestData rData = AssignmentRequestData.create(timer.getTimeOfDay(), 0, requestsToPlan);
-		if (rData.getSize() == 0) {
-			return;
-		}
-		VehicleData vData = initVehicleData(rData);
-		if (vData.getSize() == 0) {
-			return;
-		}
-		double vehPlanningHorizonSec;
-		String vehPlanningHorizonName;
-		long idleVehs = fleet.getVehicles().values().stream().filter(scheduler.getScheduleInquiry()::isIdle).count();
-		if (idleVehs < rData.getUrgentReqCount()) {
-			vehPlanningHorizonSec = params.getVehPlanningHorizonUndersupply();
-			vehPlanningHorizonName = "undersupply";
-		} else {
-			vehPlanningHorizonSec = params.getVehPlanningHorizonOversupply();
-			vehPlanningHorizonName = "oversupply";
-		}
-		log.warn("CTudorache scheduleUnplannedRequests"
-				+ ", req urgent/all: " + rData.getSize() + " / " + rData.getUrgentReqCount()
-				+ ", taxi idle/all: " + vData.getSize() + " / " + vData.getIdleCount()
-		        + ", horizon: " + vehPlanningHorizonSec + " (" + vehPlanningHorizonName + ")");
-
-		AssignmentCost<TaxiRequest> cost = assignmentCostProvider.getCost(rData, vData);
-		List<Dispatch<TaxiRequest>> assignments = assignmentProblem.findAssignments(vData, rData, cost);
-
-		log.warn("CTudorache scheduleUnplannedRequests dispatching: #" + assignments.size());
-		for (Dispatch<TaxiRequest> a : assignments) {
-			log.warn(" - " + a);
-		}
-
-		for (Dispatch<TaxiRequest> a : assignments) {
-			driverConfirmationRegistry().addDriverConfirmation(a.destination, a.vehicle, a.path);
-		}
 	}
 
 	private VehicleData initVehicleData(AssignmentRequestData rData) {

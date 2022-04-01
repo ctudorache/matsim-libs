@@ -39,7 +39,7 @@ public class Utils {
 	  logEvents(log, events, Integer.MAX_VALUE);
 	}
 	public static void logEvents(Logger log, List<Event> events, int count) {
-	  log.info("#" + events.size() + ":");
+	  log.info("Events: #" + events.size() + ":");
 	  for (int i = 0; i < events.size() && i < count; ++i) {
 	    log.info(" - " + events.get(i));
 	  }
