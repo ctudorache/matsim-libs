@@ -80,7 +80,7 @@ public class ETaxiOptimizerProvider implements Provider<TaxiOptimizer> {
 					travelTime, travelDisutility);
 			RuleBasedRequestInserter requestInserter = new RuleBasedRequestInserter(eScheduler, timer, dispatchFinder,
 					((RuleBasedETaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams()).getRuleBasedTaxiOptimizerParams(),
-					zonalRegisters, createDriverConfirmationRegistry());
+					zonalRegisters);
 
 			return new RuleBasedETaxiOptimizer(eventsManager, taxiCfg, fleet, eScheduler, scheduleTimingUpdater,
 					chargingInfrastructure, zonalRegisters, dispatchFinder, requestInserter);
@@ -88,8 +88,7 @@ public class ETaxiOptimizerProvider implements Provider<TaxiOptimizer> {
 			LeastCostPathCalculator router = new SpeedyALTFactory().createPathCalculator(network, travelDisutility,
 					travelTime);
 			return new AssignmentETaxiOptimizer(eventsManager, taxiCfg, fleet, timer, network, travelTime,
-					travelDisutility, eScheduler, scheduleTimingUpdater, chargingInfrastructure, router,
-					createDriverConfirmationRegistry());
+					travelDisutility, eScheduler, scheduleTimingUpdater, chargingInfrastructure, router);
 		} else {
 			throw new RuntimeException(
 					"Unsupported taxi optimizer type: " + taxiCfg.getTaxiOptimizerParams().getName());
@@ -102,8 +101,5 @@ public class ETaxiOptimizerProvider implements Provider<TaxiOptimizer> {
 				eScheduler.getScheduleInquiry());
 		UnplannedRequestZonalRegistry unplannedRequestRegistry = new UnplannedRequestZonalRegistry(zonalSystem);
 		return new ZonalRegisters(idleTaxiRegistry, unplannedRequestRegistry);
-	}
-	private DriverConfirmationRegistry createDriverConfirmationRegistry() {
-		return new DriverConfirmationRegistry(taxiCfg, timer);
 	}
 }

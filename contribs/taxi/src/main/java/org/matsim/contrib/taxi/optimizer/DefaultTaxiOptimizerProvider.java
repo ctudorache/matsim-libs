@@ -29,7 +29,6 @@ import org.matsim.contrib.taxi.optimizer.assignment.AssignmentTaxiOptimizerParam
 import org.matsim.contrib.taxi.optimizer.fifo.FifoRequestInserter;
 import org.matsim.contrib.taxi.optimizer.fifo.FifoTaxiOptimizerParams;
 import org.matsim.contrib.taxi.optimizer.rules.IdleTaxiZonalRegistry;
-import org.matsim.contrib.taxi.optimizer.rules.DriverConfirmationRegistry;
 import org.matsim.contrib.taxi.optimizer.rules.RuleBasedRequestInserter;
 import org.matsim.contrib.taxi.optimizer.rules.RuleBasedTaxiOptimizer;
 import org.matsim.contrib.taxi.optimizer.rules.RuleBasedTaxiOptimizerParams;
@@ -80,8 +79,7 @@ public class DefaultTaxiOptimizerProvider implements Provider<TaxiOptimizer> {
 		switch (taxiCfg.getTaxiOptimizerParams().getName()) {
 			case AssignmentTaxiOptimizerParams.SET_NAME: {
 				var requestInserter = new AssignmentRequestInserter(fleet, network, timer, travelTime, travelDisutility,
-						scheduler, (AssignmentTaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams(),
-						createDriverConfirmationRegistry());
+						scheduler, (AssignmentTaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams());
 				return new DefaultTaxiOptimizer(eventsManager, taxiCfg, fleet, scheduler, scheduleTimingUpdater,
 						requestInserter);
 			}
@@ -98,7 +96,7 @@ public class DefaultTaxiOptimizerProvider implements Provider<TaxiOptimizer> {
 						((RuleBasedTaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams()));
 				var requestInserter = new RuleBasedRequestInserter(scheduler, timer, network, travelTime,
 						travelDisutility, ((RuleBasedTaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams()),
-						zonalRegisters, createDriverConfirmationRegistry());
+						zonalRegisters);
 				return new RuleBasedTaxiOptimizer(eventsManager, taxiCfg, fleet, scheduler, scheduleTimingUpdater,
 						zonalRegisters, requestInserter);
 			}
@@ -107,8 +105,7 @@ public class DefaultTaxiOptimizerProvider implements Provider<TaxiOptimizer> {
 				var zonalRegisters = createZonalRegisters(
 						((ZonalTaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams()).getRuleBasedTaxiOptimizerParams());
 				var requestInserter = new ZonalRequestInserter(fleet, scheduler, timer, network, travelTime,
-						travelDisutility, ((ZonalTaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams()), zonalRegisters,
-						createDriverConfirmationRegistry(), context);
+						travelDisutility, ((ZonalTaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams()), zonalRegisters, context);
 				return new RuleBasedTaxiOptimizer(eventsManager, taxiCfg, fleet, scheduler, scheduleTimingUpdater,
 						zonalRegisters, requestInserter);
 			}
@@ -124,8 +121,5 @@ public class DefaultTaxiOptimizerProvider implements Provider<TaxiOptimizer> {
 		IdleTaxiZonalRegistry idleTaxiRegistry = new IdleTaxiZonalRegistry(zonalSystem, scheduler.getScheduleInquiry());
 		UnplannedRequestZonalRegistry unplannedRequestRegistry = new UnplannedRequestZonalRegistry(zonalSystem);
 		return new ZonalRegisters(idleTaxiRegistry, unplannedRequestRegistry);
-	}
-	private DriverConfirmationRegistry createDriverConfirmationRegistry() {
-		return new DriverConfirmationRegistry(taxiCfg, timer);
 	}
 }

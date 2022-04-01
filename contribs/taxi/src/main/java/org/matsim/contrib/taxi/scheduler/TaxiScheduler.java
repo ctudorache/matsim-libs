@@ -77,6 +77,7 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 	private final TaxiScheduleInquiry taxiScheduleInquiry;
 	private final EventsManager eventsManager;
 	private final MobsimTimer mobsimTimer;
+	private final DriverConfirmationRegistry driverConfirmationRegistry;
 
 	// Pre-computing paths (occupied drive tasks) when they are not needed immediately (destinationKnown is false):
 	// In some configurations, the taxi optimiser may not know the destination until the passenger is picked up.
@@ -95,6 +96,7 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 		this.travelTime = travelTime;
 		this.eventsManager = eventsManager;
 		this.mobsimTimer = mobsimTimer;
+		this.driverConfirmationRegistry = new DriverConfirmationRegistry(taxiCfg, mobsimTimer);
 
 		router = routerCreator.get();
 
@@ -116,6 +118,10 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 
 	public TaxiScheduleInquiry getScheduleInquiry() {
 		return taxiScheduleInquiry;
+	}
+
+	public DriverConfirmationRegistry getDriverConfirmationRegistry() {
+		return driverConfirmationRegistry;
 	}
 
 	// =========================================================================================

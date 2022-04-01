@@ -29,8 +29,8 @@ import org.matsim.contrib.taxi.optimizer.BestDispatchFinder.Dispatch;
 import org.matsim.contrib.taxi.optimizer.UnplannedRequestInserter;
 import org.matsim.contrib.taxi.optimizer.VehicleData;
 import org.matsim.contrib.taxi.optimizer.assignment.VehicleAssignmentProblem.AssignmentCost;
-import org.matsim.contrib.taxi.optimizer.rules.DriverConfirmation;
-import org.matsim.contrib.taxi.optimizer.rules.DriverConfirmationRegistry;
+import org.matsim.contrib.taxi.scheduler.DriverConfirmation;
+import org.matsim.contrib.taxi.scheduler.DriverConfirmationRegistry;
 import org.matsim.contrib.taxi.passenger.TaxiRequest;
 import org.matsim.contrib.taxi.scheduler.TaxiScheduler;
 import org.matsim.core.mobsim.framework.MobsimTimer;
@@ -52,25 +52,20 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 	private final VehicleAssignmentProblem<TaxiRequest> assignmentProblem;
 	private final TaxiToRequestAssignmentCostProvider assignmentCostProvider;
 
-	private final DriverConfirmationRegistry driverConfirmationRegistry;
-
 	public AssignmentRequestInserter(Fleet fleet, Network network, MobsimTimer timer, TravelTime travelTime,
 									 TravelDisutility travelDisutility, TaxiScheduler scheduler,
-									 AssignmentTaxiOptimizerParams params,
-									 DriverConfirmationRegistry driverConfirmationRegistry) {
+									 AssignmentTaxiOptimizerParams params) {
 		this(fleet, timer, network, travelTime, travelDisutility, scheduler, params,
-				new SpeedyALTFactory().createPathCalculator(network, travelDisutility, travelTime),
-				driverConfirmationRegistry);
+				new SpeedyALTFactory().createPathCalculator(network, travelDisutility, travelTime));
 	}
 
 	public AssignmentRequestInserter(Fleet fleet, MobsimTimer timer, Network network, TravelTime travelTime,
 			TravelDisutility travelDisutility, TaxiScheduler scheduler, AssignmentTaxiOptimizerParams params,
-			LeastCostPathCalculator router, DriverConfirmationRegistry driverConfirmationRegistry) {
+			LeastCostPathCalculator router) {
 		this.fleet = fleet;
 		this.scheduler = scheduler;
 		this.timer = timer;
 		this.params = params;
-		this.driverConfirmationRegistry = driverConfirmationRegistry;
 
 		assignmentProblem = new VehicleAssignmentProblem<>(network, travelTime, travelDisutility, router,
 				params.getNearestRequestsLimit(), params.getNearestVehiclesLimit());
@@ -82,12 +77,10 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 	public void scheduleUnplannedRequests(Collection<TaxiRequest> unplannedRequests) {
 		log.warn("CTudorache scheduleUnplannedRequests #" + unplannedRequests.size());
 
-		driverConfirmationRegistry.updateForCurrentTime();
-
 		// schedule requests which are confirmed
 		List<TaxiRequest> requestsToPlan = new ArrayList<>();
 		for (TaxiRequest r : unplannedRequests) {
-			DriverConfirmation dc = driverConfirmationRegistry.getDriverConfirmation(r);
+			DriverConfirmation dc = driverConfirmationRegistry().getDriverConfirmation(r);
 			if (dc == null) {
 				requestsToPlan.add(r);
 				continue;
@@ -133,7 +126,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 		}
 
 		for (Dispatch<TaxiRequest> a : assignments) {
-			driverConfirmationRegistry.addDriverConfirmation(a.destination, a.vehicle, a.path);
+			driverConfirmationRegistry().addDriverConfirmation(a.destination, a.vehicle, a.path);
 		}
 	}
 
@@ -143,6 +136,10 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 				params.getVehPlanningHorizonUndersupply() :
 				params.getVehPlanningHorizonOversupply();
 		return new VehicleData(timer.getTimeOfDay(), scheduler.getScheduleInquiry(),
-				fleet.getVehicles().values().stream(), vehPlanningHorizon, driverConfirmationRegistry);
+				fleet.getVehicles().values().stream(), vehPlanningHorizon, driverConfirmationRegistry());
+	}
+
+	private DriverConfirmationRegistry driverConfirmationRegistry() {
+		return scheduler.getDriverConfirmationRegistry();
 	}
 }

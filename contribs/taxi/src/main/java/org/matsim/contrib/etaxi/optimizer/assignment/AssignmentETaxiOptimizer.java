@@ -46,7 +46,6 @@ import org.matsim.contrib.taxi.optimizer.assignment.AssignmentDestinationData;
 import org.matsim.contrib.taxi.optimizer.assignment.AssignmentRequestInserter;
 import org.matsim.contrib.taxi.optimizer.assignment.VehicleAssignmentProblem;
 import org.matsim.contrib.taxi.optimizer.assignment.VehicleAssignmentProblem.AssignmentCost;
-import org.matsim.contrib.taxi.optimizer.rules.DriverConfirmationRegistry;
 import org.matsim.contrib.taxi.run.TaxiConfigGroup;
 import org.matsim.contrib.taxi.scheduler.TaxiScheduleInquiry;
 import org.matsim.contrib.common.collections.PartialSort;
@@ -87,12 +86,11 @@ public class AssignmentETaxiOptimizer extends DefaultTaxiOptimizer {
 	public AssignmentETaxiOptimizer(EventsManager eventsManager, TaxiConfigGroup taxiCfg, Fleet fleet,
 									MobsimTimer timer, Network network, TravelTime travelTime, TravelDisutility travelDisutility,
 									ETaxiScheduler eScheduler, ScheduleTimingUpdater scheduleTimingUpdater,
-									ChargingInfrastructure chargingInfrastructure, LeastCostPathCalculator router,
-									DriverConfirmationRegistry driverConfirmationRegistry) {
+									ChargingInfrastructure chargingInfrastructure, LeastCostPathCalculator router) {
 		super(eventsManager, taxiCfg, fleet, eScheduler, scheduleTimingUpdater,
 				new AssignmentRequestInserter(fleet, timer, network, travelTime, travelDisutility, eScheduler,
 						((AssignmentETaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams()).getAssignmentTaxiOptimizerParams(),
-						router, driverConfirmationRegistry));
+						router));
 		this.params = (AssignmentETaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams();
 		this.chargingInfrastructure = chargingInfrastructure;
 		this.eScheduler = eScheduler;

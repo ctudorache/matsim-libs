@@ -94,6 +94,8 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 				}
 			}
 
+			scheduler.getDriverConfirmationRegistry().updateForCurrentTime();
+
 			requestInserter.scheduleUnplannedRequests(unplannedRequests.getSchedulableRequests());
 
 			if (taxiCfg.getMaxSearchDuration() > 0) {

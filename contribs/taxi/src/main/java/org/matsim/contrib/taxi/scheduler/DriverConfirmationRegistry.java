@@ -1,4 +1,4 @@
-package org.matsim.contrib.taxi.optimizer.rules;
+package org.matsim.contrib.taxi.scheduler;
 
 import org.apache.log4j.Logger;
 import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
