@@ -89,6 +89,9 @@ public class VehicleAssignmentProblem<D> {
 
 	public List<Dispatch<D>> findAssignments(VehicleData vData, AssignmentDestinationData<D> dData,
 			AssignmentCost<D> assignmentCost) {
+		if (vData.getSize() == 0 || dData.getSize() == 0) {
+			return List.of();
+		}
 		this.vData = vData;
 		this.dData = dData;
 		this.assignmentCost = assignmentCost;
