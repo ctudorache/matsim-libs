@@ -41,10 +41,12 @@ public class TaxiScheduleInquiry implements ScheduleInquiry {
 	private static final Logger log = Logger.getLogger(TaxiScheduleInquiry.class);
 	private final TaxiConfigGroup taxiCfg;
 	private final MobsimTimer timer;
+	private final DriverConfirmationRegistry driverConfirmationRegistry;
 
-	public TaxiScheduleInquiry(TaxiConfigGroup taxiCfg, MobsimTimer timer) {
+	public TaxiScheduleInquiry(TaxiConfigGroup taxiCfg, MobsimTimer timer, DriverConfirmationRegistry driverConfirmationRegistry) {
 		this.taxiCfg = taxiCfg;
 		this.timer = timer;
+		this.driverConfirmationRegistry = driverConfirmationRegistry;
 	}
 
 	@Override
@@ -52,6 +54,10 @@ public class TaxiScheduleInquiry implements ScheduleInquiry {
 		Schedule schedule = vehicle.getSchedule();
 		if (timer.getTimeOfDay() >= vehicle.getServiceEndTime()
 				|| schedule.getStatus() != Schedule.ScheduleStatus.STARTED) {
+			return false;
+		}
+
+		if (driverConfirmationRegistry.isWaitingDriverConfirmation(vehicle)) {
 			return false;
 		}
 
@@ -79,6 +85,10 @@ public class TaxiScheduleInquiry implements ScheduleInquiry {
 	 */
 	public LinkTimePair getEarliestIdleness(DvrpVehicle veh) {
 		if (timer.getTimeOfDay() >= veh.getServiceEndTime()) {// time window exceeded
+			return null;
+		}
+
+		if (driverConfirmationRegistry.isWaitingDriverConfirmation(veh)) {
 			return null;
 		}
 

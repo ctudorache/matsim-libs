@@ -89,14 +89,14 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 
 	public TaxiScheduler(TaxiConfigGroup taxiCfg, Fleet fleet, TaxiScheduleInquiry taxiScheduleInquiry,
 			TravelTime travelTime, Supplier<LeastCostPathCalculator> routerCreator, EventsManager eventsManager,
-			MobsimTimer mobsimTimer) {
+			MobsimTimer mobsimTimer, DriverConfirmationRegistry driverConfirmationRegistry) {
 		this.taxiCfg = taxiCfg;
 		this.fleet = fleet;
 		this.taxiScheduleInquiry = taxiScheduleInquiry;
 		this.travelTime = travelTime;
 		this.eventsManager = eventsManager;
 		this.mobsimTimer = mobsimTimer;
-		this.driverConfirmationRegistry = new DriverConfirmationRegistry(taxiCfg, mobsimTimer);
+		this.driverConfirmationRegistry = driverConfirmationRegistry;
 
 		router = routerCreator.get();
 

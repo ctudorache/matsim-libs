@@ -32,6 +32,7 @@ import org.matsim.contrib.dvrp.passenger.PassengerRequestValidator;
 import org.matsim.contrib.dvrp.run.AbstractDvrpModeQSimModule;
 import org.matsim.contrib.dvrp.run.DvrpConfigGroup;
 import org.matsim.contrib.dvrp.run.DvrpModes;
+import org.matsim.contrib.taxi.scheduler.DriverConfirmationRegistry;
 import org.matsim.core.modal.ModalProviders;
 import org.matsim.contrib.dvrp.schedule.ScheduleTimingUpdater;
 import org.matsim.contrib.dvrp.trafficmonitoring.DvrpTravelTimeModule;
@@ -114,7 +115,8 @@ public class ETaxiModeQSimModule extends AbstractDvrpModeQSimModule {
 					public ETaxiScheduler get() {
 						var travelTime = getModalInstance(TravelTime.class);
 						Fleet fleet = getModalInstance(Fleet.class);
-						TaxiScheduleInquiry taxiScheduleInquiry = new TaxiScheduleInquiry(taxiCfg, timer);
+						DriverConfirmationRegistry driverConfirmationRegistry = new DriverConfirmationRegistry(taxiCfg, timer);
+						TaxiScheduleInquiry taxiScheduleInquiry = new TaxiScheduleInquiry(taxiCfg, timer, driverConfirmationRegistry);
 						Network network = getModalInstance(Network.class);
 						TravelDisutility travelDisutility = getModalInstance(
 								TravelDisutilityFactory.class).createTravelDisutility(travelTime);
@@ -122,7 +124,7 @@ public class ETaxiModeQSimModule extends AbstractDvrpModeQSimModule {
 						Supplier<LeastCostPathCalculator> routerCreator = () -> speedyALTFactory.createPathCalculator(
 								network, travelDisutility, travelTime);
 						return new ETaxiScheduler(taxiCfg, fleet, taxiScheduleInquiry, travelTime, routerCreator,
-								events, timer);
+								events, timer, driverConfirmationRegistry);
 					}
 				});
 

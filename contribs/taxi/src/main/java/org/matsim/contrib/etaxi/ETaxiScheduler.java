@@ -40,6 +40,7 @@ import org.matsim.contrib.ev.infrastructure.Charger;
 import org.matsim.contrib.taxi.run.TaxiConfigGroup;
 import org.matsim.contrib.taxi.schedule.TaxiStayTask;
 import org.matsim.contrib.taxi.schedule.TaxiTaskType;
+import org.matsim.contrib.taxi.scheduler.DriverConfirmationRegistry;
 import org.matsim.contrib.taxi.scheduler.TaxiScheduleInquiry;
 import org.matsim.contrib.taxi.scheduler.TaxiScheduler;
 import org.matsim.core.api.experimental.events.EventsManager;
@@ -52,8 +53,8 @@ public class ETaxiScheduler extends TaxiScheduler {
 
 	public ETaxiScheduler(TaxiConfigGroup taxiCfg, Fleet fleet, TaxiScheduleInquiry taxiScheduleInquiry,
 			TravelTime travelTime, Supplier<LeastCostPathCalculator> routerCreator, EventsManager eventsManager,
-			MobsimTimer mobsimTimer) {
-		super(taxiCfg, fleet, taxiScheduleInquiry, travelTime, routerCreator, eventsManager, mobsimTimer);
+			MobsimTimer mobsimTimer, DriverConfirmationRegistry driverConfirmationRegistry) {
+		super(taxiCfg, fleet, taxiScheduleInquiry, travelTime, routerCreator, eventsManager, mobsimTimer, driverConfirmationRegistry);
 	}
 
 	// FIXME underestimated due to the ongoing AUX/drive consumption

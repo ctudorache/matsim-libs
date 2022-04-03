@@ -126,8 +126,7 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 				// TODO(CTudorache): simplify, always call idleTaxiRegistry.findNearestVehicles which already contains test for minCount > idleCount
 				Stream<DvrpVehicle> selectedVehs = idleCount > nearestVehiclesLimit ?
 						idleTaxiRegistry.findNearestVehicles(req.getFromLink().getFromNode(), nearestVehiclesLimit) :
-						idleTaxiRegistry.vehicles();
-				selectedVehs = selectedVehs.filter(v -> !driverConfirmationRegistry().isWaitingDriverConfirmation(v));
+						idleTaxiRegistry.idleVehicles();
 
 				log.warn("CTudorache scheduleUnplannedRequestsImpl req: " + req + ", selectedVehs: ");
 				selectedVehs = selectedVehs.peek(v -> {
@@ -172,9 +171,9 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 
 	// vehicle-initiated scheduling
 	private void scheduleIdleVehiclesImpl(Collection<TaxiRequest> unplannedRequests) {
-		log.warn("CTudorache scheduleIdleVehiclesImpl, req: #" + unplannedRequests.size() + ", idleTaxiRegistry: " + idleTaxiRegistry.vehicles().count());
+		log.warn("CTudorache scheduleIdleVehiclesImpl, req: #" + unplannedRequests.size() + ", idleTaxiRegistry: " + idleTaxiRegistry.idleVehicles().count());
 		int nearestRequestsLimit = params.getNearestRequestsLimit();
-		Iterator<DvrpVehicle> vehIter = idleTaxiRegistry.vehicles().iterator();
+		Iterator<DvrpVehicle> vehIter = idleTaxiRegistry.idleVehicles().iterator();
 		while (vehIter.hasNext() && !unplannedRequests.isEmpty()) {
 			DvrpVehicle veh = vehIter.next();
 

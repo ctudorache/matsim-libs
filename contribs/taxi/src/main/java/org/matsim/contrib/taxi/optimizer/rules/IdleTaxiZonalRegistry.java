@@ -109,7 +109,7 @@ public class IdleTaxiZonalRegistry {
 		return zonalSystem.getZone(stayTask.getLink().getToNode()).getId();
 	}
 
-	public Stream<DvrpVehicle> vehicles() {
+	public Stream<DvrpVehicle> idleVehicles() {
 		return vehicles.values().stream().filter(scheduleInquiry::isIdle);
 	}
 

@@ -66,17 +66,10 @@ public class VehicleData {
 		MutableInt idx = new MutableInt();
 		MutableInt idleCounter = new MutableInt();
 		vehicles.forEach(v -> {
-			// ignore vehicles which are waiting on driver confirmation
-			if (driverConfirmationRegistry != null &&
-					driverConfirmationRegistry.isWaitingDriverConfirmation(v)
-			) {
-				return;
-			}
-
 			LinkTimePair departure = scheduleInquiry.getImmediateDiversionOrEarliestIdleness(v);
 
 			if (departure != null && departure.time <= maxDepartureTime) {
-				// NOTE: vehicle is eligible for assignment. It could be already idle, or become idle in the near future.
+				// NOTE: vehicle is eligible for assignment: either already idle, or becomes idle in less than maxDepartureTime
 				boolean idle = scheduleInquiry.isIdle(v);
 				entries.add(new Entry(idx.getAndIncrement(), v, departure.link, departure.time, idle));
 				if (idle) {
