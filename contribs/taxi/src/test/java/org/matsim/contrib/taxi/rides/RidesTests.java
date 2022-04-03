@@ -23,8 +23,8 @@ import java.util.List;
 public class RidesTests {
 	private static final Logger log = Logger.getLogger(RidesTests.class);
 
-	private String taxiOptimizerParamsSetName;
-	private AbstractTaxiOptimizerParams taxiOptimizerParams;
+	private final String taxiOptimizerParamsSetName;
+	private final AbstractTaxiOptimizerParams taxiOptimizerParams;
 
 	public RidesTests(String taxiOptimizerParamsSetName) {
 		this.taxiOptimizerParamsSetName = taxiOptimizerParamsSetName;
@@ -98,7 +98,7 @@ public class RidesTests {
 
 	@Test
 	public void orderIsSentToAnotherDriverWhenNearbyDriverAlreadyHasAPendingConfirmation() {
-		TestScenarioGenerator testScenario = new TestScenarioGenerator(new RuleBasedTaxiOptimizerParams());
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(taxiOptimizerParams);
 		final double driverAcceptanceDelay = 15; // it takes driver 15 seconds to accept the order
 		testScenario.getTaxiCfg().setDriverConfirmationDelay(driverAcceptanceDelay);
 
@@ -126,7 +126,7 @@ public class RidesTests {
 
 	@Test
 	public void orderExpiresBecauseDriverAcceptanceDelayIsTooHigh() {
-		TestScenarioGenerator testScenario = new TestScenarioGenerator(new RuleBasedTaxiOptimizerParams());
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(taxiOptimizerParams);
 		final double orderExpiresSec = 25.0;
 		testScenario.getTaxiCfg().setMaxSearchDuration(orderExpiresSec);
 		final double driverAcceptanceDelay = 35; // order should expire while waiting for driver confirmation
@@ -147,11 +147,11 @@ public class RidesTests {
 	}
 
 	@Test
-	public void batchedDispatchingSelectsNearbyFinishingOrderInsteadOfFartherFreeVehicle() {
-		TestScenarioGenerator testScenario = new TestScenarioGenerator(new RuleBasedTaxiOptimizerParams());
+	public void batchedDispatchingSelectsNearbySoonFinishingInsteadOfFartherFreeVehicle() {
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(taxiOptimizerParams);
 		testScenario.getTaxiCfg().setDriverConfirmationDelay(0.0);
 		final int batchDuration = 15; // batch size in seconds
-		testScenario.getRuleBasedTaxiOptimizerParams().setReoptimizationTimeStep(batchDuration);
+		testScenario.getTaxiOptimizerParams().setReoptimizationTimeStep(batchDuration);
 
 		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
 

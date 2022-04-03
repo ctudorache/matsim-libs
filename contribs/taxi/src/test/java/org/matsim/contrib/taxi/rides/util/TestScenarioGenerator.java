@@ -123,10 +123,6 @@ public class TestScenarioGenerator {
 	public AbstractTaxiOptimizerParams getTaxiOptimizerParams() {
 		return getTaxiCfg().getTaxiOptimizerParams();
 	}
-	public RuleBasedTaxiOptimizerParams getRuleBasedTaxiOptimizerParams() {
-		TaxiConfigGroup taxiCfg = getTaxiCfg();
-		return (RuleBasedTaxiOptimizerParams) taxiCfg.getTaxiOptimizerParams();
-	}
 
 	public void addPassenger(String passengerId, Id<Link> fromLink, Id<Link> toLink, Double departureTime) {
 		// TODO(CTudorache): utility method for generating passenger id: "passenger_%d"

@@ -3,6 +3,7 @@ package org.matsim.contrib.taxi.rides.util;
 import org.apache.log4j.Logger;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.locationtech.jts.util.AssertionFailedException;
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
@@ -57,7 +58,7 @@ public class Utils {
 		for (Event actualEv : actual) {
 			if (Objects.equals(actualEv.getEventType(), partialEv.type)) {
 				if (!partialEv.matches(actualEv)) {
-					throw new AssertionFailedException("Event mismatch:" +
+					Assert.fail("Event mismatch:" +
 							"\n - expected: " + partialEv +
 							"\n - actual: " + actualEv);
 				}
@@ -67,7 +68,7 @@ public class Utils {
 				partialEv = expectedIt.next();
 			}
 		}
-		throw new AssertionFailedException("Event not found:" +
+		Assert.fail("Event not found:" +
 				"\n - " + partialEv);
 	}
 
