@@ -44,8 +44,15 @@ public class GridNetworkGenerator {
 	public Id<Node> nodeId(int x, int y) {
 		return Id.create(String.format("%d_%d", x, y), Node.class);
 	}
+	public Coord nodeCoord(int x, int y) {
+		return new Coord(x * 1000, y * 1000);
+	}
 
-	public Node node(int x, int y) {
+	public void addNode(int x, int y) {
+		NetworkUtils.createAndAddNode(network, nodeId(x, y), nodeCoord(x, y));
+	}
+
+	public Node getNode(int x, int y) {
 		return network.getNodes().get(nodeId(x, y));
 	}
 
@@ -54,32 +61,30 @@ public class GridNetworkGenerator {
 	}
 
 	public Id<Link> linkId(int fromX, int fromY, int toX, int toY) {
-		return linkId(node(fromX, fromY), node(toX, toY));
-	}
-	public Coord nodeCoord(int x, int y) {
-		return new Coord(x * 1000, y * 1000);
+		return linkId(getNode(fromX, fromY), getNode(toX, toY));
 	}
 
-	private void addLink(Node a, Node b) {
+	public void
+	addOneWayLink(Node a, Node b) {
 		NetworkUtils.createAndAddLink(network, linkId(a, b), a, b, linkLength, linkFreeSpeed, linkCapacity,  linkLanes);
 	}
 
-	private void addDoubleLink(Node a, Node b) {
-		addLink(a, b);
-		addLink(b, a);
+	public void addDoubleLink(Node a, Node b) {
+		addOneWayLink(a, b);
+		addOneWayLink(b, a);
 	}
 
 	private void build(int xNodes, int yNodes) {
 		for (int x = 0; x < xNodes; ++x) {
 			for (int y = 0; y < yNodes; ++y) {
-				NetworkUtils.createAndAddNode(network, nodeId(x, y), nodeCoord(x, y));
+				addNode(x, y);
 			}
 		}
 		for (int x = 0; x < xNodes; ++x) {
 			for (int y = 0; y < yNodes; ++y) {
-				Node crtNode = node(x, y);
-				Node leftNode = node(x-1, y);
-				Node downNode = node(x, y-1);
+				Node crtNode = getNode(x, y);
+				Node leftNode = getNode(x-1, y);
+				Node downNode = getNode(x, y-1);
 				if (leftNode != null) {
 					addDoubleLink(leftNode, crtNode);
 				}

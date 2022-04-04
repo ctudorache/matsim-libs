@@ -180,4 +180,41 @@ public class RidesTests {
 				new PartialEvent(null, PassengerDroppedOffEvent.EVENT_TYPE, "passenger_2","taxi_vehicle_1")
 		));
 	}
+
+	@Test
+	public void batchedDispatchingMinAssignment() {
+		// Scenario: 2 passengers, 2 vehicles.
+		// - p1 away from: v1 = 1 sec, v2 = 2 sec
+		// - p2 away from: v1 = 7 sec, v2 = 100 (due to one-way)
+		// Greedy assignment:  p1-v1, p2-v2 => total pickup time: 1 + 100.
+		// Optimum assignment: p1-v2, p2-v1 => total pickup time: 2 + 7
+
+		TestScenarioGenerator testScenario = new TestScenarioGenerator(taxiOptimizerParams);
+		final int batchDuration = 15; // batch size in seconds
+		testScenario.getTaxiOptimizerParams().setReoptimizationTimeStep(batchDuration);
+
+		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
+		gn.addOneWayLink(gn.getNode());
+
+		final double passenger1OrderSent = 0;
+		final double passenger2OrderSent = 10;
+		final double passenger1OrderScheduled = batchDuration;
+		// TODO(CTudorache): fix coords
+		testScenario.addPassenger("passenger_1", gn.linkId(0, 0, 0, 1), gn.linkId(0, 1, 1, 1), passenger1OrderSent);
+		testScenario.addPassenger("passenger_2", gn.linkId(0, 1, 0, 2), gn.linkId(2, 2, 2, 1), passenger2OrderSent);
+		testScenario.addVehicle("taxi_vehicle_1", gn.linkId(2, 0, 2, 1), 0.0, 1000.0);
+		testScenario.addVehicle("taxi_vehicle_2", gn.linkId(2, 0, 2, 1), 0.0, 1000.0);
+
+		List<Event> allEvents = testScenario.createController().run();
+
+		Utils.logEvents(log, allEvents);
+		Utils.expectEvents(allEvents, List.of(
+				new PartialEvent(Matchers.is(passenger1OrderSent), PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_1",null),
+				new PartialEvent(Matchers.is(passenger1OrderSent), PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_2",null),
+				new PartialEvent(Utils.matcherAproxTime(batchDuration), PassengerRequestScheduledEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_2"),
+				new PartialEvent(Utils.matcherAproxTime(batchDuration), PassengerRequestScheduledEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_1"),
+				new PartialEvent(null, PassengerDroppedOffEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_2"),
+				new PartialEvent(null, PassengerDroppedOffEvent.EVENT_TYPE, "passenger_2","taxi_vehicle_1")
+		));
+	}
 }

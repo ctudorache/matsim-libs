@@ -19,7 +19,6 @@ import org.matsim.contrib.dvrp.run.DvrpQSimComponents;
 import org.matsim.contrib.taxi.analysis.TaxiEventSequenceCollector;
 import org.matsim.contrib.taxi.benchmark.TaxiBenchmarkStats;
 import org.matsim.contrib.taxi.optimizer.AbstractTaxiOptimizerParams;
-import org.matsim.contrib.taxi.optimizer.rules.RuleBasedTaxiOptimizerParams;
 import org.matsim.contrib.taxi.run.MultiModeTaxiConfigGroup;
 import org.matsim.contrib.taxi.run.MultiModeTaxiModule;
 import org.matsim.contrib.taxi.run.TaxiConfigGroup;
@@ -36,7 +35,6 @@ import org.matsim.vehicles.Vehicle;
 import org.matsim.vehicles.VehicleType;
 import org.matsim.vehicles.VehicleUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
@@ -109,10 +107,14 @@ public class TestScenarioGenerator {
 		log.warn("CTudorache resultRuleParams: " + getTaxiOptimizerParams());
 	}
 
-	// TODO(CTudorache): could be moved to buildConfig(), after scenario creation
 	public GridNetworkGenerator buildGridNetwork(int xNodes, int yNodes) {
 		return new GridNetworkGenerator(scenario.getNetwork(), xNodes, yNodes, Map.of());
 	}
+
+	public CustomOneWayNetworkGenerator buildCustomOneWayNetwork() {
+		return new CustomOneWayNetworkGenerator(scenario.getNetwork());
+	}
+
 
 	public Config getConfig() {
 		return config;
@@ -125,7 +127,6 @@ public class TestScenarioGenerator {
 	}
 
 	public void addPassenger(String passengerId, Id<Link> fromLink, Id<Link> toLink, Double departureTime) {
-		// TODO(CTudorache): utility method for generating passenger id: "passenger_%d"
 		Person person = PopulationUtils.getFactory().createPerson(Id.create(passengerId, Person.class));
 		PersonUtils.setEmployed(person, false);
 
