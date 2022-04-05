@@ -68,7 +68,7 @@ public class Utils {
 			}
 			expectedPartials.get(expectedPartials.size() - 1).getSecond().add(ev);
 		}
-		System.out.println("expectedPartials: " + strArray(expectedPartials));
+		System.out.println("Expected events grouped by timestamp: " + strArray(expectedPartials));
 
 		var expectedIt = expectedPartials.iterator();
 		Tuple<Matcher<Double>, Set<PartialEvent>> expectedEvs = expectedIt.next();

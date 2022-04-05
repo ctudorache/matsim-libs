@@ -80,7 +80,7 @@ public class TestScenarioGenerator {
 		config.controler().setOutputDirectory("test/output/abcdef");
 		config.controler().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists);
 		config.controler().setLastIteration(0);
-		config.controler().setDumpDataAtEnd(false);
+		config.controler().setDumpDataAtEnd(true);
 		config.controler().setWriteEventsInterval(0);
 		config.controler().setWritePlansInterval(0);
 		config.controler().setCreateGraphs(false);
