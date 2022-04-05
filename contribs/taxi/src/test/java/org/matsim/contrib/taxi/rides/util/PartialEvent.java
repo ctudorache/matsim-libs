@@ -2,6 +2,7 @@ package org.matsim.contrib.taxi.rides.util;
 
 import com.google.common.base.MoreObjects;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.matsim.api.core.v01.events.Event;
 
 import javax.annotation.Nullable;
@@ -16,7 +17,7 @@ public class PartialEvent {
 	String vehicle;
 
 	public PartialEvent(Matcher<Double> time, String type, String person, String vehicle) {
-		this.time = time;
+		this.time = time == null ? Matchers.any(Double.class) : time;
 		this.type = type;
 		this.person = person;
 		this.vehicle = vehicle;

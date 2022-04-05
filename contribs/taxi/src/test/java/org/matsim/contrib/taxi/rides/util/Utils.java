@@ -1,5 +1,6 @@
 package org.matsim.contrib.taxi.rides.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -12,10 +13,10 @@ import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.network.Network;
 import org.matsim.api.core.v01.network.Node;
 import org.matsim.core.network.NetworkUtils;
+import org.matsim.core.utils.collections.Tuple;
 import org.matsim.core.utils.misc.Time;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Utils {
 	private static List<Link> generateNetwork(Network network) {
@@ -49,27 +50,50 @@ public class Utils {
 	  }
 	}
 
-	public static void expectEvents(List<Event> actual, List<PartialEvent> expected) {
-		if (expected.isEmpty()) {
+	private static <T> boolean matchersEqual(Matcher<T> a, Matcher<T> b) {
+		return Objects.equals(a.toString(), b.toString());
+	}
+
+	public static void expectEvents(List<Event> actual, List<PartialEvent> expectedEventList) {
+		if (expectedEventList.isEmpty()) {
 			return;
 		}
-		var expectedIt = expected.iterator();
-		PartialEvent partialEv = expectedIt.next();
+
+		// Build an ordered map of: time -> list of events
+		// Purpose: events with the same time can appear in any order.
+		List<Tuple<Matcher<Double>, Set<PartialEvent>>> expectedPartials = new ArrayList<>();
+		for (PartialEvent ev : expectedEventList) {
+			if (expectedPartials.isEmpty() || !matchersEqual(expectedPartials.get(expectedPartials.size() - 1).getFirst(), ev.time)) {
+				expectedPartials.add(new Tuple<>(ev.time, new HashSet<>()));
+			}
+			expectedPartials.get(expectedPartials.size() - 1).getSecond().add(ev);
+		}
+		System.out.println("expectedPartials: " + strArray(expectedPartials));
+
+		var expectedIt = expectedPartials.iterator();
+		Tuple<Matcher<Double>, Set<PartialEvent>> expectedEvs = expectedIt.next();
 		for (Event actualEv : actual) {
-			if (Objects.equals(actualEv.getEventType(), partialEv.type)) {
-				if (!partialEv.matches(actualEv)) {
+			boolean typeMatch = expectedEvs.getSecond().stream().anyMatch(
+					pEv -> Objects.equals(actualEv.getEventType(), pEv.type));
+
+			if (typeMatch) {
+				Optional<PartialEvent> matcher = expectedEvs.getSecond().stream().filter(pEv -> pEv.matches(actualEv)).findFirst();
+				if (matcher.isEmpty()) {
 					Assert.fail("Event mismatch:" +
-							"\n - expected: " + partialEv +
+							"\n - expected one of: " + strArray(expectedEvs.getSecond(), expectedEvs.getSecond().size(), 1) +
 							"\n - actual: " + actualEv);
 				}
-				if (!expectedIt.hasNext()) {
-					return;
+				expectedEvs.getSecond().remove(matcher.get());
+
+				if (expectedEvs.getSecond().isEmpty()) {
+					if (!expectedIt.hasNext()) {
+						return;
+					}
+					expectedEvs = expectedIt.next();
 				}
-				partialEv = expectedIt.next();
 			}
 		}
-		Assert.fail("Event not found:" +
-				"\n - " + partialEv);
+		Assert.fail("Event not found: " + strArray(expectedEvs.getSecond()));
 	}
 
 	public static Matcher<Double> matcherAproxTime(Double t) {
@@ -78,5 +102,32 @@ public class Utils {
 
 	public static double nextBatchedDispatchingTime(int batchDuration, double t) {
 		return Math.floorDiv((int)(t + batchDuration), batchDuration) * batchDuration;
+	}
+
+	/** Serialize to string the first 'count' elements of the array. Useful for debug printing. */
+	public static <T> String strArray(Collection<T> arr, int count, int indent) {
+		StringBuilder s = new StringBuilder();
+		s.append("#" + arr.size() + "\n");
+		String strIndent = StringUtils.repeat(" ", indent * 2);
+		int printCount = 0;
+		for (T elem : arr) {
+			s.append(strIndent + " - " + elem + "\n");
+			printCount += 1;
+			if (printCount >= count) {
+				break;
+			}
+		}
+		if (count < arr.size()) {
+			s.append(strIndent + " ... omitted");
+		}
+		return s.toString();
+	}
+
+	public static <T> String strArray(Collection<T> arr, int count) {
+		return strArray(arr, count, 0);
+	}
+
+	public static <T> String strArray(Collection<T> arr) {
+		return strArray(arr, arr.size(), 0);
 	}
 }
