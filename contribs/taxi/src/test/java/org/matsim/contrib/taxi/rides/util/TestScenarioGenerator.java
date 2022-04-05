@@ -108,13 +108,11 @@ public class TestScenarioGenerator {
 	}
 
 	public GridNetworkGenerator buildGridNetwork(int xNodes, int yNodes) {
-		return new GridNetworkGenerator(scenario.getNetwork(), xNodes, yNodes, Map.of());
+		return buildGridNetwork(xNodes, yNodes, true);
 	}
-
-	public CustomOneWayNetworkGenerator buildCustomOneWayNetwork() {
-		return new CustomOneWayNetworkGenerator(scenario.getNetwork());
+	public GridNetworkGenerator buildGridNetwork(int xNodes, int yNodes, boolean generateLinks) {
+		return new GridNetworkGenerator(scenario.getNetwork(), xNodes, yNodes, Map.of(), generateLinks);
 	}
-
 
 	public Config getConfig() {
 		return config;

@@ -1,7 +1,9 @@
 package org.matsim.contrib.taxi.rides;
 
 import org.apache.log4j.Logger;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -182,7 +184,7 @@ public class RidesTests {
 	}
 
 	@Test
-	public void batchedDispatchingMinAssignment() {
+	public void batchedDispatchingAssignment() {
 		// Scenario: 2 passengers, 2 vehicles.
 		// - p1 away from: v1 = 1 sec, v2 = 2 sec
 		// - p2 away from: v1 = 7 sec, v2 = 100 (due to one-way)
@@ -193,28 +195,53 @@ public class RidesTests {
 		final int batchDuration = 15; // batch size in seconds
 		testScenario.getTaxiOptimizerParams().setReoptimizationTimeStep(batchDuration);
 
-		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
-		gn.addOneWayLink(gn.getNode());
+		GridNetworkGenerator gn = testScenario.buildGridNetwork( 6, 6, false);
+		gn.addOneWayLink(gn.getNode(2, 1), gn.getNode(2, 2));
+		gn.addDoubleLink(gn.getNode(2, 2), gn.getNode(2, 3));
+		gn.addOneWayLink(gn.getNode(2, 3), gn.getNode(2, 4));
+		gn.addOneWayLink(gn.getNode(2, 4), gn.getNode(3, 4));
+		gn.addOneWayLink(gn.getNode(2, 4), gn.getNode(2, 5));
+		gn.addOneWayLink(gn.getNode(3, 3), gn.getNode(3, 2));
+		gn.addOneWayLink(gn.getNode(3, 2), gn.getNode(2, 2));
+		gn.addOneWayLink(gn.getNode(3, 2), gn.getNode(3, 1));
+		gn.addOneWayLink(gn.getNode(3, 1), gn.getNode(2, 1));
+
+		gn.addOneWayLink(gn.getNode(0, 3), gn.getNode(0, 2));
+		gn.addOneWayLink(gn.getNode(0, 2), gn.getNode(1, 2));
+		gn.addOneWayLink(gn.getNode(1, 2), gn.getNode(2, 2));
+		gn.addOneWayLink(gn.getNode(0, 2), gn.getNode(0, 1));
+		gn.addOneWayLink(gn.getNode(0, 1), gn.getNode(0, 0));
+		gn.addOneWayLink(gn.getNode(0, 0), gn.getNode(1, 0));
+		gn.addOneWayLink(gn.getNode(1, 0), gn.getNode(2, 0));
+		gn.addOneWayLink(gn.getNode(2, 0), gn.getNode(3, 0));
+		gn.addOneWayLink(gn.getNode(3, 0), gn.getNode(4, 0));
+		gn.addOneWayLink(gn.getNode(4, 0), gn.getNode(5, 0));
+		gn.addOneWayLink(gn.getNode(5, 0), gn.getNode(5, 1));
+		gn.addOneWayLink(gn.getNode(5, 1), gn.getNode(4, 1));
+		gn.addOneWayLink(gn.getNode(4, 1), gn.getNode(3, 1));
 
 		final double passenger1OrderSent = 0;
-		final double passenger2OrderSent = 10;
-		final double passenger1OrderScheduled = batchDuration;
-		// TODO(CTudorache): fix coords
-		testScenario.addPassenger("passenger_1", gn.linkId(0, 0, 0, 1), gn.linkId(0, 1, 1, 1), passenger1OrderSent);
-		testScenario.addPassenger("passenger_2", gn.linkId(0, 1, 0, 2), gn.linkId(2, 2, 2, 1), passenger2OrderSent);
-		testScenario.addVehicle("taxi_vehicle_1", gn.linkId(2, 0, 2, 1), 0.0, 1000.0);
-		testScenario.addVehicle("taxi_vehicle_2", gn.linkId(2, 0, 2, 1), 0.0, 1000.0);
+		final double passenger2OrderSent = batchDuration / 2;
+		final double bothPassengersScheduled = batchDuration;
+		testScenario.addPassenger("passenger_1", gn.linkId(2, 2, 2, 3), gn.linkId(2, 4, 3, 4), passenger1OrderSent);
+		testScenario.addPassenger("passenger_2", gn.linkId(2, 1, 2, 2), gn.linkId(2, 4, 2, 5), passenger2OrderSent);
+		testScenario.addVehicle("taxi_vehicle_1", gn.linkId(3, 3, 3, 2), 0.0, 1000.0);
+		testScenario.addVehicle("taxi_vehicle_2", gn.linkId(0, 3, 0, 2), 0.0, 1000.0);
 
 		List<Event> allEvents = testScenario.createController().run();
 
 		Utils.logEvents(log, allEvents);
+		final boolean isOptimalAssignment = taxiOptimizerParams.getName() == AssignmentTaxiOptimizerParams.SET_NAME;
+		final String vehicleForPassenger1 = isOptimalAssignment ? "taxi_vehicle_2" : "taxi_vehicle_1";
+		final String vehicleForPassenger2 = isOptimalAssignment ? "taxi_vehicle_1" : "taxi_vehicle_2";
 		Utils.expectEvents(allEvents, List.of(
-				new PartialEvent(Matchers.is(passenger1OrderSent), PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_1",null),
-				new PartialEvent(Matchers.is(passenger1OrderSent), PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_2",null),
-				new PartialEvent(Utils.matcherAproxTime(batchDuration), PassengerRequestScheduledEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_2"),
-				new PartialEvent(Utils.matcherAproxTime(batchDuration), PassengerRequestScheduledEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_1"),
-				new PartialEvent(null, PassengerDroppedOffEvent.EVENT_TYPE, "passenger_1","taxi_vehicle_2"),
-				new PartialEvent(null, PassengerDroppedOffEvent.EVENT_TYPE, "passenger_2","taxi_vehicle_1")
+				new PartialEvent(Matchers.is(passenger1OrderSent), PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_1", null),
+				new PartialEvent(Matchers.is(passenger2OrderSent), PassengerRequestSubmittedEvent.EVENT_TYPE, "passenger_2", null),
+				new PartialEvent(Utils.matcherAproxTime(bothPassengersScheduled), PassengerRequestScheduledEvent.EVENT_TYPE, "passenger_1", vehicleForPassenger1),
+				new PartialEvent(Utils.matcherAproxTime(bothPassengersScheduled), PassengerRequestScheduledEvent.EVENT_TYPE, "passenger_2", vehicleForPassenger2),
+				new PartialEvent(null, PassengerDroppedOffEvent.EVENT_TYPE, "passenger_1", vehicleForPassenger1),
+				new PartialEvent(null, PassengerDroppedOffEvent.EVENT_TYPE, "passenger_2", vehicleForPassenger2)
 		));
+
 	}
 }
