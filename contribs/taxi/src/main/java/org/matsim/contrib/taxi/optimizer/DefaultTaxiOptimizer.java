@@ -86,6 +86,10 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 				unscheduleAwaitingRequests();
 			}
 
+			if (taxiCfg.getMaxSearchDuration() >= 0) {
+				expireUnplannedOldRequests();
+			}
+
 			// TODO update timeline only if the algo really wants to reschedule in this time step,
 			// perhaps by checking if there are any unplanned requests??
 			if (params.doUpdateTimelines) {
@@ -97,10 +101,6 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 			scheduler.getDriverConfirmationRegistry().updateForCurrentTime();
 
 			requestInserter.scheduleUnplannedRequests(unplannedRequests.getSchedulableRequests());
-
-			if (taxiCfg.getMaxSearchDuration() > 0) {
-				expireUnplannedOldRequests();
-			}
 
 			if (params.doUnscheduleAwaitingRequests && taxiCfg.isVehicleDiversion()) {
 				scheduler.stopAllAimlessDriveTasks();

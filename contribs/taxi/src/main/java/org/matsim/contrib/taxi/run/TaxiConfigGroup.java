@@ -155,9 +155,9 @@ public final class TaxiConfigGroup extends ReflectiveConfigGroupWithConfigurable
 	@Positive
 	private double dropoffDuration = Double.NaN;// seconds
 
-	private double maxSearchDuration = Double.NaN; // seconds
+	private double maxSearchDuration = -1; // seconds. Default: -1 => order never expires.
 
-	private double driverConfirmationDelay = 0; // seconds
+	private double driverConfirmationDelay = 0; // seconds. Default: instant confirmation.
 
 	private boolean onlineVehicleTracker = false;
 	private boolean changeStartLinkToLastLinkInSchedule = false;
@@ -340,6 +340,7 @@ public final class TaxiConfigGroup extends ReflectiveConfigGroupWithConfigurable
 
 	/**
 	 * @return {@value #MAX_SEARCH_DURATION_EXP}
+	 * WARNING: if negative => request never expires
 	 */
 	@StringGetter(MAX_SEARCH_DURATION)
 	public Double getMaxSearchDuration() {

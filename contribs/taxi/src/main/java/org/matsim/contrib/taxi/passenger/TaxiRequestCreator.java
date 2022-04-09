@@ -33,6 +33,7 @@ import org.matsim.core.api.experimental.events.EventsManager;
  */
 public class TaxiRequestCreator implements PassengerRequestCreator {
 	private final String mode;
+	// WARNING: if maxSearchDuration is negative => request never expires
 	private final double maxSearchDuration;
 	private final EventsManager eventsManager;
 
@@ -49,6 +50,7 @@ public class TaxiRequestCreator implements PassengerRequestCreator {
 				new PassengerRequestSubmittedEvent(submissionTime, mode, id, passengerId, fromLink.getId(),
 						toLink.getId()));
 
-		return new TaxiRequest(id, passengerId, mode, fromLink, toLink, departureTime, submissionTime, departureTime + maxSearchDuration);
+		final double latestStartTime = maxSearchDuration >= 0 ? (departureTime + maxSearchDuration) : Double.MAX_VALUE;
+		return new TaxiRequest(id, passengerId, mode, fromLink, toLink, departureTime, submissionTime, latestStartTime);
 	}
 }
