@@ -1,9 +1,11 @@
 package org.matsim.contrib.taxi.rides;
 
 import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -25,11 +27,9 @@ import java.util.List;
 public class RidesTests {
 	private static final Logger log = Logger.getLogger(RidesTests.class);
 
-	private final String taxiOptimizerParamsSetName;
 	private final AbstractTaxiOptimizerParams taxiOptimizerParams;
 
 	public RidesTests(String taxiOptimizerParamsSetName) {
-		this.taxiOptimizerParamsSetName = taxiOptimizerParamsSetName;
 		switch (taxiOptimizerParamsSetName) {
 			case RuleBasedTaxiOptimizerParams.SET_NAME:
 				taxiOptimizerParams = new RuleBasedTaxiOptimizerParams();
@@ -49,6 +49,16 @@ public class RidesTests {
 				{ RuleBasedTaxiOptimizerParams.SET_NAME },
 				{ AssignmentTaxiOptimizerParams.SET_NAME },
 		});
+	}
+
+	@Before
+	public void initialize() {
+		String strLogLevel = System.getProperty("logLevel");
+		if (strLogLevel != null) {
+			org.apache.logging.log4j.core.LoggerContext context = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
+			org.apache.logging.log4j.core.config.Configuration loggerConfig = context.getConfiguration();
+			loggerConfig.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(org.apache.logging.log4j.Level.valueOf(strLogLevel));
+		}
 	}
 
 	@Test
