@@ -84,7 +84,6 @@ public class TestScenarioGenerator {
 		config.controler().setWriteEventsInterval(0);
 		config.controler().setWritePlansInterval(0);
 		config.controler().setCreateGraphs(false);
-		config.controler().setLogLevel("TRACE");
 		config.qsim().setSimStarttimeInterpretation(QSimConfigGroup.StarttimeInterpretation.onlyUseStarttime);
 		config.qsim().setInsertingWaitingVehiclesBeforeDrivingVehicles(true);
 		config.qsim().setSnapshotStyle(QSimConfigGroup.SnapshotStyle.queue);
