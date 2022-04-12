@@ -127,7 +127,7 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 	// =========================================================================================
 
 	public void scheduleRequest(DvrpVehicle vehicle, TaxiRequest request, VrpPathWithTravelData vrpPath) {
-		log.warn("CTudorache scheduleRequest vehicle: " + vehicle + ", req: " + request);
+		log.debug("CTudorachescheduleRequest vehicle: " + vehicle + ", req: " + request);
 		if (request.getStatus() != TaxiRequestStatus.UNPLANNED) {
 			throw new IllegalStateException();
 		}
@@ -164,7 +164,7 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 	// TODO(CTudorache): should be called divertOrAppendDriveToPickup()
 	protected void divertOrAppendDrive(Schedule schedule, VrpPathWithTravelData vrpPath, TaxiTaskType taskType) {
 		Task lastTask = Schedules.getLastTask(schedule);
-		log.warn("CTudorache divertOrAppendDrive lastTask: " + lastTask);
+		log.debug("CTudorachedivertOrAppendDrive lastTask: " + lastTask);
 		switch (getBaseTypeOrElseThrow(lastTask)) {
 			case EMPTY_DRIVE:
 				divertDrive((TaxiEmptyDriveTask)lastTask, vrpPath);
@@ -190,7 +190,7 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 	// TODO(CTudorache): should be called scheduleDriveToPickup
 	protected void scheduleDrive(Schedule schedule, TaxiStayTask lastTask, VrpPathWithTravelData vrpPath,
 			TaxiTaskType taskType) {
-		log.warn("CTudorache scheduleDrive lastTask: " + lastTask + ", vrpPath: " + vrpPath);
+		log.debug("CTudorachescheduleDrive lastTask: " + lastTask + ", vrpPath: " + vrpPath);
 		switch (lastTask.getStatus()) {
 			case PLANNED:
 				if (lastTask.getBeginTime() == vrpPath.getDepartureTime()) { // waiting for 0 seconds!!!

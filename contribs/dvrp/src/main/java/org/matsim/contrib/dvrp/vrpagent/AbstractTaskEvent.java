@@ -60,7 +60,7 @@ public abstract class AbstractTaskEvent extends Event implements HasPersonId, Ha
 		this.taskIndex = taskIndex;
 		this.linkId = linkId;
 
-	    log.warn("CTudorache new AbstractTaskEvent: " + this);
+	    log.debug("CTudorachenew AbstractTaskEvent: " + this);
 	}
 
 	public final Id<DvrpVehicle> getDvrpVehicleId() {

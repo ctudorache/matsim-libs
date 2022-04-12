@@ -43,7 +43,7 @@ public class TaxiSimulationConsistencyChecker implements MobsimBeforeCleanupList
 	public void addCheckAllRequestsPerformed() {
 		for (var seq : taxiEventSequenceCollector.getRequestSequences().values()) {
 			if (!seq.isCompleted()) {
-				log.warn("CTudorache seq INCOMPLETE: " + taxiEventSequenceCollector);
+				log.debug("CTudoracheseq INCOMPLETE: " + taxiEventSequenceCollector);
 				if (taxiCfg.isBreakSimulationIfNotAllRequestsServed()) {
 					throw new IllegalStateException(
 							"Not all taxi requests served at simulation end time. This exception can be disabled in the taxi config group.");

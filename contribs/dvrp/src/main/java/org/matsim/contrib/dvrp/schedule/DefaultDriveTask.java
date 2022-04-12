@@ -37,7 +37,7 @@ public class DefaultDriveTask extends AbstractTask implements DriveTask {
 		super(taskType, path.getDepartureTime(), path.getArrivalTime());
 		this.path = path;
 
-	    log.warn("CTudorache new DefaultDriveTask: " + this);
+	    log.debug("CTudorachenew DefaultDriveTask: " + this);
 	}
 
 	@Override

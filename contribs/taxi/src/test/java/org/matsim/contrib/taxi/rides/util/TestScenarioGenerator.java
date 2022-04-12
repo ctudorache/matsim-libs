@@ -68,13 +68,13 @@ public class TestScenarioGenerator {
 		taxiCfgGen.setDetailedStats(true);
 
 		taxiCfgGen.addParameterSet(taxiOptimizerParams);
-		log.warn("CTudorache taxiCfgGen: " + taxiCfgGen);
+		log.debug("CTudorachetaxiCfgGen: " + taxiCfgGen);
 
 		MultiModeTaxiConfigGroup multiModeTaxiConfigGroup = new MultiModeTaxiConfigGroup();
 		multiModeTaxiConfigGroup.addParameterSet(taxiCfgGen);
 
 		config = ConfigUtils.createConfig(multiModeTaxiConfigGroup, new DvrpConfigGroup());
-		log.warn("CTudorache modules: " + config.getModules().keySet());
+		log.debug("CTudorachemodules: " + config.getModules().keySet());
 
 
 		config.controler().setOutputDirectory("test/output/abcdef");
@@ -84,6 +84,7 @@ public class TestScenarioGenerator {
 		config.controler().setWriteEventsInterval(0);
 		config.controler().setWritePlansInterval(0);
 		config.controler().setCreateGraphs(false);
+		config.controler().setLogLevel("TRACE");
 		config.qsim().setSimStarttimeInterpretation(QSimConfigGroup.StarttimeInterpretation.onlyUseStarttime);
 		config.qsim().setInsertingWaitingVehiclesBeforeDrivingVehicles(true);
 		config.qsim().setSnapshotStyle(QSimConfigGroup.SnapshotStyle.queue);
@@ -103,8 +104,8 @@ public class TestScenarioGenerator {
 		scenario.getVehicles().addVehicleType(taxiVehicleType);
 
 		// sanity check
-		log.warn("CTudorache resultTaxiCfg: " + getTaxiCfg());
-		log.warn("CTudorache resultRuleParams: " + getTaxiOptimizerParams());
+		log.debug("CTudoracheresultTaxiCfg: " + getTaxiCfg());
+		log.debug("CTudoracheresultRuleParams: " + getTaxiOptimizerParams());
 	}
 
 	public GridNetworkGenerator buildGridNetwork(int xNodes, int yNodes) {

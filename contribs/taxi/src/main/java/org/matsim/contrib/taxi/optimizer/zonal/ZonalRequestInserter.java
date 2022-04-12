@@ -89,7 +89,7 @@ public class ZonalRequestInserter implements UnplannedRequestInserter {
 
 	@Override
 	public void scheduleUnplannedRequests(Collection<TaxiRequest> unplannedRequests) {
-		log.warn("CTudorache scheduleUnplannedRequests #" + unplannedRequests.size());
+		log.debug("CTudorachescheduleUnplannedRequests #" + unplannedRequests.size());
 
 		initIdleVehiclesInZones();
 		scheduleUnplannedRequestsWithinZones(unplannedRequests);
@@ -120,7 +120,7 @@ public class ZonalRequestInserter implements UnplannedRequestInserter {
 	}
 
 	private void scheduleUnplannedRequestsWithinZones(Collection<TaxiRequest> unplannedRequests) {
-		log.warn("CTudorache scheduleUnplannedRequestsWithinZones #" + unplannedRequests.size());
+		log.debug("CTudorachescheduleUnplannedRequestsWithinZones #" + unplannedRequests.size());
 		Iterator<TaxiRequest> reqIter = unplannedRequests.iterator();
 		while (reqIter.hasNext()) {
 			TaxiRequest req = reqIter.next();
@@ -137,7 +137,7 @@ public class ZonalRequestInserter implements UnplannedRequestInserter {
 
 			Stream<DvrpVehicle> filteredVehs = Stream.of(idleVehsInZone.peek());
 			BestDispatchFinder.Dispatch<TaxiRequest> best = dispatchFinder.findBestVehicleForRequest(req, filteredVehs);
-			log.warn("CTudorache scheduleUnplannedRequestsWithinZones req: " + req + " => dispatch: " + best);
+			log.debug("CTudorachescheduleUnplannedRequestsWithinZones req: " + req + " => dispatch: " + best);
 			if (best != null) {
 				scheduler.scheduleRequest(best.vehicle, best.destination, best.path);
 				reqIter.remove();

@@ -75,7 +75,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 
 	@Override
 	public void scheduleUnplannedRequests(Collection<TaxiRequest> unplannedRequests) {
-		log.warn("CTudorache scheduleUnplannedRequests #" + unplannedRequests.size());
+		log.debug("CTudorachescheduleUnplannedRequests #" + unplannedRequests.size());
 
 		// schedule requests which are confirmed
 		List<DriverConfirmation> requestsToSchedule = new ArrayList<>();
@@ -107,7 +107,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 			vehPlanningHorizonSec = params.getVehPlanningHorizonOversupply();
 			vehPlanningHorizonName = "oversupply (veh >= req)";
 		}
-		log.warn("CTudorache scheduleUnplannedRequests"
+		log.debug("CTudorachescheduleUnplannedRequests"
 				+ ", req urgent/all: " + rData.getSize() + "/" + rData.getUrgentReqCount()
 				+ ", taxi idle/all: " + vData.getSize() + "/" + vData.getIdleCount()
 				+ ", horizon: " + vehPlanningHorizonSec + " (" + vehPlanningHorizonName + ")");
@@ -115,7 +115,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 		AssignmentCost<TaxiRequest> cost = assignmentCostProvider.getCost(rData, vData);
 		List<Dispatch<TaxiRequest>> assignments = assignmentProblem.findAssignments(vData, rData, cost);
 
-		log.warn("CTudorache scheduleUnplannedRequests dispatching: #" + assignments.size());
+		log.debug("CTudorachescheduleUnplannedRequests dispatching: #" + assignments.size());
 		for (Dispatch<TaxiRequest> a : assignments) {
 			log.warn(" - " + a);
 		}

@@ -111,7 +111,7 @@ public class BestDispatchFinder {
 			return null;
 		}
 
-		log.warn("CTudorache multiSourceALT:");
+		log.debug("CTudorachemultiSourceALT:");
 		log.warn(" - from: " + vehicleNodes.values());
 		log.warn(" - to: " + destinationNode);
 		Path path = multiSourceALT.calcLeastCostPath(vehicleNodes.values(), destinationNode, null, null, false);

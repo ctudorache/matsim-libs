@@ -57,7 +57,7 @@ public class TaxiActionCreator implements VrpAgentLogic.DynActionCreator {
 				v -> VrpLegFactory.createWithOnlineTracker(dvrpCfg.getMobsimMode(), v,
 						OnlineTrackerListener.NO_LISTENER, timer) :
 				v -> VrpLegFactory.createWithOfflineTracker(dvrpCfg.getMobsimMode(), v, timer));
-	    log.warn("CTudorache new TaxiActionCreator: " + this);
+	    log.debug("CTudorachenew TaxiActionCreator: " + this);
 	}
 
 	public TaxiActionCreator(PassengerHandler passengerHandler, VrpLegFactory legFactory) {

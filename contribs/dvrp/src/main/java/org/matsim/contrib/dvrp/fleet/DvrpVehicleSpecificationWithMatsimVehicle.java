@@ -42,7 +42,7 @@ public class DvrpVehicleSpecificationWithMatsimVehicle implements DvrpVehicleSpe
 	public static final String SERVICE_END_TIME = "serviceEndTime";
 
 	public static FleetSpecification createFleetSpecificationFromMatsimVehicles(String mode, Vehicles vehicles) {
-		log.warn("CTudorache mode: " + mode
+		log.debug("CTudorachemode: " + mode
 				+ ", vehicleTypes: " + Joiner.on(",").withKeyValueSeparator("=").join(vehicles.getVehicleTypes())
 				+ ", vehicles: " + Joiner.on(",").withKeyValueSeparator("=").join(vehicles.getVehicles()));
 		FleetSpecification fleetSpecification = new FleetSpecificationImpl();
@@ -53,7 +53,7 @@ public class DvrpVehicleSpecificationWithMatsimVehicle implements DvrpVehicleSpe
 						vehicle.getAttributes().getAttribute(DVRP_MODE)))
 				.map(DvrpVehicleSpecificationWithMatsimVehicle::new)
 				.forEach(fleetSpecification::addVehicleSpecification);
-		log.warn("CTudorache fleetSpecification: " + fleetSpecification.getVehicleSpecifications());
+		log.debug("CTudorachefleetSpecification: " + fleetSpecification.getVehicleSpecifications());
 		return fleetSpecification;
 	}
 

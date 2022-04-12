@@ -98,7 +98,7 @@ public class TaxiScheduleInquiry implements ScheduleInquiry {
 			case PLANNED:
 			case STARTED:
 				Task lastTask = Schedules.getLastTask(schedule);
-				log.warn("CTudorache getEarliestIdleness veh: " + veh + ", lastTask: " + lastTask);
+				log.debug("CTudorachegetEarliestIdleness veh: " + veh + ", lastTask: " + lastTask);
 
 				switch (getBaseTypeOrElseThrow(lastTask)) {
 					case STAY:

@@ -72,7 +72,7 @@ public class TaxiRequest implements PassengerRequest {
 		this.fromLink = fromLink;
 		this.toLink = toLink;
 
-	    log.warn("CTudorache new TaxiRequest: " + this);
+	    log.debug("CTudorachenew TaxiRequest: " + this);
 	}
 
 	@Override

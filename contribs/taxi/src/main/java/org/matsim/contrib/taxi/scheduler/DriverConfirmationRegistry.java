@@ -27,7 +27,7 @@ public class DriverConfirmationRegistry {
 		DriverConfirmation dc = new DriverConfirmation(request, vehicle, pathToPickup, timer.getTimeOfDay() + taxiCfg.getDriverConfirmationDelay());
 		updateDriverConfirmation(dc);
 		if (!dc.isComplete()) {
-			log.warn("CTudorache addDriverConfirmation: " + dc);
+			log.debug("CTudoracheaddDriverConfirmation: " + dc);
 			confirmations.add(dc);
 		}
 		return dc;
@@ -41,7 +41,7 @@ public class DriverConfirmationRegistry {
 	}
 
 	public void removeDriverConfirmation(DriverConfirmation dc) {
-		log.warn("CTudorache removeDriverConfirmation: " + dc);
+		log.debug("CTudoracheremoveDriverConfirmation: " + dc);
 		confirmations.remove(dc);
 	}
 
@@ -79,7 +79,7 @@ public class DriverConfirmationRegistry {
 	private void updateDriverConfirmation(DriverConfirmation dc) {
 		if (!dc.isComplete() && dc.endTime <= timer.getTimeOfDay()) {
 			dc.setComplete(true); // auto-accept
-			log.warn("CTudorache DriverConfirmation complete: " + dc);
+			log.debug("CTudoracheDriverConfirmation complete: " + dc);
 		}
 	}
 }

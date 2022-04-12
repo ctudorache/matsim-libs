@@ -36,7 +36,7 @@ public class OneTaxiServeTask extends DefaultStayTask {
 			OneTaxiRequest request) {
 		super(taskType, beginTime, endTime, link);
 		this.request = request;
-	    log.warn("CTudorache new OneTaxiServerTask: " + this);
+	    log.debug("CTudorachenew OneTaxiServerTask: " + this);
 	}
 
 	public OneTaxiRequest getRequest() {
