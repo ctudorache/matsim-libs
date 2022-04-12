@@ -53,9 +53,6 @@ public class RidesTests {
 
 	@Test
 	public void orderExpiresDueToNoAvailableVehicle() {
-		log.warn("CTudorache logLevel: crt: " + log.getLevel() + ", root: " + Logger.getRootLogger().getLevel());
-		log.debug("CTudoracherunning test, taxiOptimizerParamsSetName: " + taxiOptimizerParamsSetName);
-		if (taxiOptimizerParams != null) { return; }
 		TestScenarioGenerator testScenario = new TestScenarioGenerator(taxiOptimizerParams);
 		testScenario.getTaxiCfg().setMaxSearchDuration(60.0); // order issued at: 00:65 and should expire in 60 sec => 125 sec
 

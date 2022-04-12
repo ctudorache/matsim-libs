@@ -55,7 +55,7 @@ public final class TaxiModeModule extends AbstractDvrpModeModule {
 
 	@Override
 	public void install() {
-		log.debug("CTudoracheTaxiModeModule.install: " + taxiCfg);
+		log.debug("CTudorache TaxiModeModule.install: " + taxiCfg);
 		DvrpModes.registerDvrpMode(binder(), getMode());
 
 		install(new DvrpModeRoutingNetworkModule(getMode(), taxiCfg.isUseModeFilteredSubnetwork()));

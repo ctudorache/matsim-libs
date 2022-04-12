@@ -55,7 +55,7 @@ public final class OneTaxiRequest implements PassengerRequest {
 		this.fromLink = fromLink;
 		this.toLink = toLink;
 
-	    log.debug("CTudorachenew OneTaxiRequest: " + this);
+	    log.debug("CTudorache new OneTaxiRequest: " + this);
 	}
 
 	@Override

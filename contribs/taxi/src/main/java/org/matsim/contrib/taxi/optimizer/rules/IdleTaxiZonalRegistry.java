@@ -95,7 +95,7 @@ public class IdleTaxiZonalRegistry {
 				scheduleInquiry::isIdle :
 				vehicleFilter.and(scheduleInquiry::isIdle);
 
-		log.debug("CTudorachefindNearestVehicles, node: " + node + ", minCount: " + minCount + ", vehicles: #" + vehicles.size());
+		log.debug("CTudorache findNearestVehicles, node: " + node + ", minCount: " + minCount + ", vehicles: #" + vehicles.size());
 		return minCount >= vehicles.size() ?
 				vehicles.values().stream().filter(idleVehicleFilter) :
 				zonesSortedByDistance.get(zonalSystem.getZone(node).getId())

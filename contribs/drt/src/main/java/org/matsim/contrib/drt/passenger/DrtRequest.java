@@ -58,7 +58,7 @@ public class DrtRequest implements PassengerRequest {
 		fromLink = builder.fromLink;
 		toLink = builder.toLink;
 
-		log.debug("CTudorachenew DrtRequest: " + this);
+		log.debug("CTudorache new DrtRequest: " + this);
 	}
 
 	public static Builder newBuilder() {

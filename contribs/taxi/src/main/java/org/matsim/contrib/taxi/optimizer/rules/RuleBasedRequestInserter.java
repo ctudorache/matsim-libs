@@ -75,7 +75,7 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 		long awaitingReqCount = unplannedRequests.stream()
 				.filter(r -> ((PassengerRequest)r).getEarliestStartTime() <= now)//urgent requests
 				.count();
-		log.debug("CTudorachescheduleUnplannedRequests, goal: " + params.getGoal()
+		log.debug("CTudorache scheduleUnplannedRequests, goal: " + params.getGoal()
 				+ ", awaitingReqCount: " + awaitingReqCount
 				+ ", idleTaxi: " + idleTaxiRegistry.getVehicleCount());
 		if (isReduceTP(unplannedRequests)) {
@@ -111,7 +111,7 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 
 	// request-initiated scheduling
 	private void scheduleUnplannedRequestsImpl(Collection<TaxiRequest> unplannedRequests) {
-		log.debug("CTudorachescheduleUnplannedRequestsImpl #" + unplannedRequests.size());
+		log.debug("CTudorache scheduleUnplannedRequestsImpl #" + unplannedRequests.size());
 		// vehicles are not immediately removed so calculate 'idleCount' locally
 		int idleCount = idleTaxiRegistry.getVehicleCount();
 		int nearestVehiclesLimit = params.getNearestVehiclesLimit();
@@ -128,13 +128,13 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 						idleTaxiRegistry.findNearestVehicles(req.getFromLink().getFromNode(), nearestVehiclesLimit) :
 						idleTaxiRegistry.idleVehicles();
 
-				log.debug("CTudorachescheduleUnplannedRequestsImpl req: " + req + ", selectedVehs: ");
+				log.debug("CTudorache scheduleUnplannedRequestsImpl req: " + req + ", selectedVehs: ");
 				selectedVehs = selectedVehs.peek(v -> {
 					log.warn(" - " + v);
 				});
 
 				BestDispatchFinder.Dispatch<TaxiRequest> best = dispatchFinder.findBestVehicleForRequest(req, selectedVehs);
-				log.debug("CTudorachebest dispatch: " + best);
+				log.debug("CTudorache best dispatch: " + best);
 				if (best == null) {
 					// XXX NOTE:
 					// There may be no idle vehicle in the registry despite idleCount > 0
@@ -149,7 +149,7 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 				dc = driverConfirmationRegistry().addDriverConfirmation(req, best.vehicle, best.path);
 			}
 
-			log.debug("CTudorachescheduleUnplannedRequestsImpl, waitingDriverConfirmation: " + dc);
+			log.debug("CTudorache scheduleUnplannedRequestsImpl, waitingDriverConfirmation: " + dc);
 			if (!dc.isComplete()) {
 				// req is still unplanned, but it was already sent to a driver who is yet to confirm it
 				continue;
@@ -162,7 +162,7 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 			driverConfirmationRegistry().removeDriverConfirmation(dc);
 			scheduler.scheduleRequest(dc.vehicle, dc.request, dc.getPathToPickup(timer.getTimeOfDay()));
 
-			log.debug("CTudorachereq planned, removing from unplanned");
+			log.debug("CTudorache req planned, removing from unplanned");
 			reqIter.remove();
 			unplannedRequestRegistry.removeRequest(req);
 			idleCount--;
@@ -171,7 +171,7 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 
 	// vehicle-initiated scheduling
 	private void scheduleIdleVehiclesImpl(Collection<TaxiRequest> unplannedRequests) {
-		log.debug("CTudorachescheduleIdleVehiclesImpl, req: #" + unplannedRequests.size() + ", idleTaxiRegistry: " + idleTaxiRegistry.idleVehicles().count());
+		log.debug("CTudorache scheduleIdleVehiclesImpl, req: #" + unplannedRequests.size() + ", idleTaxiRegistry: " + idleTaxiRegistry.idleVehicles().count());
 		int nearestRequestsLimit = params.getNearestRequestsLimit();
 		Iterator<DvrpVehicle> vehIter = idleTaxiRegistry.idleVehicles().iterator();
 		while (vehIter.hasNext() && !unplannedRequests.isEmpty()) {
@@ -189,7 +189,7 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 				selectedReqs = selectedReqs.filter(r -> !driverConfirmationRegistry().isWaitingDriverConfirmation(r));
 
 				BestDispatchFinder.Dispatch<TaxiRequest> best = dispatchFinder.findBestRequestForVehicle(veh, selectedReqs);
-				log.debug("CTudorachescheduleIdleVehiclesImpl best dispatch: " + best);
+				log.debug("CTudorache scheduleIdleVehiclesImpl best dispatch: " + best);
 				if (best == null) {
 					// Happens when selectedReq is empty (e.g. all requests are waiting for driver confirmation)
 					return;
@@ -198,7 +198,7 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 				dc = driverConfirmationRegistry().addDriverConfirmation(best.destination, best.vehicle, best.path);
 			}
 
-			log.debug("CTudorachescheduleIdleVehiclesImpl, waitingDriverConfirmation: " + dc);
+			log.debug("CTudorache scheduleIdleVehiclesImpl, waitingDriverConfirmation: " + dc);
 			if (!dc.isComplete()) {
 				// req is still unplanned, but it was already sent to a driver who is yet to confirm it
 				continue;
@@ -211,7 +211,7 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 			driverConfirmationRegistry().removeDriverConfirmation(dc);
 			scheduler.scheduleRequest(dc.vehicle, dc.request, dc.getPathToPickup(timer.getTimeOfDay()));
 
-			log.debug("CTudorachereq planned, removing from unplanned");
+			log.debug("CTudorache req planned, removing from unplanned");
 			unplannedRequests.remove(dc.request);
 			unplannedRequestRegistry.removeRequest(dc.request);
 		}

@@ -41,14 +41,14 @@ public class FifoSchedulingProblem {
 	}
 
 	public void scheduleUnplannedRequests(Collection<TaxiRequest> unplannedRequests) {
-		log.debug("CTudorachescheduleUnplannedRequests #" + unplannedRequests.size());
+		log.debug("CTudorache scheduleUnplannedRequests #" + unplannedRequests.size());
 		Iterator<TaxiRequest> reqIter = unplannedRequests.iterator();
 		while (reqIter.hasNext()) {
 			TaxiRequest req = reqIter.next();
 
 			BestDispatchFinder.Dispatch<TaxiRequest> best = dispatchFinder.findBestVehicleForRequest(req,
 					fleet.getVehicles().values().stream());
-			log.debug("CTudorachescheduleUnplannedRequests req: " + req + " => dispatch: " + best);
+			log.debug("CTudorache scheduleUnplannedRequests req: " + req + " => dispatch: " + best);
 
 			// TODO search only through available vehicles
 			// TODO what about k-nearstvehicle filtering?

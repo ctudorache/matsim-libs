@@ -68,13 +68,13 @@ public class TestScenarioGenerator {
 		taxiCfgGen.setDetailedStats(true);
 
 		taxiCfgGen.addParameterSet(taxiOptimizerParams);
-		log.debug("CTudorachetaxiCfgGen: " + taxiCfgGen);
+		log.debug("CTudorache taxiCfgGen: " + taxiCfgGen);
 
 		MultiModeTaxiConfigGroup multiModeTaxiConfigGroup = new MultiModeTaxiConfigGroup();
 		multiModeTaxiConfigGroup.addParameterSet(taxiCfgGen);
 
 		config = ConfigUtils.createConfig(multiModeTaxiConfigGroup, new DvrpConfigGroup());
-		log.debug("CTudorachemodules: " + config.getModules().keySet());
+		log.debug("CTudorache modules: " + config.getModules().keySet());
 
 
 		config.controler().setOutputDirectory("test/output/abcdef");
@@ -104,8 +104,8 @@ public class TestScenarioGenerator {
 		scenario.getVehicles().addVehicleType(taxiVehicleType);
 
 		// sanity check
-		log.debug("CTudoracheresultTaxiCfg: " + getTaxiCfg());
-		log.debug("CTudoracheresultRuleParams: " + getTaxiOptimizerParams());
+		log.debug("CTudorache resultTaxiCfg: " + getTaxiCfg());
+		log.debug("CTudorache resultRuleParams: " + getTaxiOptimizerParams());
 	}
 
 	public GridNetworkGenerator buildGridNetwork(int xNodes, int yNodes) {

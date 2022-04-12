@@ -73,7 +73,7 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 		requiresReoptimization |= !unplannedRequests.getSchedulableRequests().isEmpty();
 
 		if (isNewDecisionEpoch(e, params.getReoptimizationTimeStep())) {
-			log.debug("CTudorachenotifyMobsimBeforeSimStep"
+			log.debug("CTudorache notifyMobsimBeforeSimStep"
 					+ ", simTime: " + e.getSimulationTime()
 					+ ", unplannedRequests.schedulable: #" + unplannedRequests.getSchedulableRequests().size()
 					+ ", requiresReoptimization: " + requiresReoptimization

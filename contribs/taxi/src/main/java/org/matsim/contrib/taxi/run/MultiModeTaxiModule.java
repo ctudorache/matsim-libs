@@ -37,9 +37,9 @@ public class MultiModeTaxiModule extends AbstractModule {
 
 	@Override
 	public void install() {
-		log.debug("CTudoracheMultiModeTaxiModule.install: #" + multiModeTaxiCfg.getModalElements().size());
+		log.debug("CTudorache MultiModeTaxiModule.install: #" + multiModeTaxiCfg.getModalElements().size());
 		for (TaxiConfigGroup taxiCfg : multiModeTaxiCfg.getModalElements()) {
-			log.debug("CTudoracheMultiModeTaxiModule.install: >> taxiCfg: " + taxiCfg);
+			log.debug("CTudorache MultiModeTaxiModule.install: >> taxiCfg: " + taxiCfg);
 			install(new TaxiModeModule(taxiCfg));
 			installQSimModule(new TaxiModeQSimModule(taxiCfg));
 			install(new TaxiModeAnalysisModule(taxiCfg));
