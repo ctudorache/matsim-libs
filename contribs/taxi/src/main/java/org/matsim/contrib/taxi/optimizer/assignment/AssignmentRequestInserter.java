@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.network.Network;
+import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
 import org.matsim.contrib.dvrp.fleet.Fleet;
 import org.matsim.contrib.taxi.optimizer.BestDispatchFinder.Dispatch;
 import org.matsim.contrib.taxi.optimizer.UnplannedRequestInserter;
@@ -84,6 +86,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 			DriverConfirmation dc = driverConfirmationRegistry().getDriverConfirmation(r);
 			if (dc == null) {
 				requestsToPlan.add(r);
+				r.scheduleAttempts += 1;
 				continue;
 			}
 			if (!dc.isComplete()) {
@@ -114,10 +117,17 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 
 		AssignmentCost<TaxiRequest> cost = assignmentCostProvider.getCost(rData, vData);
 		List<Dispatch<TaxiRequest>> assignments = assignmentProblem.findAssignments(vData, rData, cost);
+		if (rData.getSize() > assignments.size()) {
+			log.warn("CTudorache Cannot find a matching driver for all req"
+					+ ", req urgent/all: " + rData.getSize() + "/" + rData.getUrgentReqCount()
+					+ ", taxi idle/all: " + vData.getSize() + "/" + vData.getIdleCount()
+					+ ", horizon: " + vehPlanningHorizonSec + " (" + vehPlanningHorizonName + ")"
+					+ ", assigned: " + assignments.size() + ", fleet: " + strFleetState());
+		}
 
 		log.debug("CTudorache scheduleUnplannedRequests dispatching: #" + assignments.size());
 		for (Dispatch<TaxiRequest> a : assignments) {
-			log.warn(" - " + a);
+			log.debug(" - " + a);
 		}
 
 		// create DriverConfirmation for all the requests. If the driver confirmation is instant, then proceed with schedule.
@@ -149,5 +159,33 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 
 	private DriverConfirmationRegistry driverConfirmationRegistry() {
 		return scheduler.getDriverConfirmationRegistry();
+	}
+
+	private String strFleetState() {
+		final double now = timer.getTimeOfDay();
+		long onlineCount = 0;
+		long offlineCount = 0;
+		long waitingConfirmationCount = 0;
+		long drivingCount = 0;
+		long stationaryCount = 0;
+		for (DvrpVehicle vehicle : fleet.getVehicles().values()) {
+			if (now < vehicle.getServiceBeginTime() || vehicle.getServiceEndTime() < now) {
+				offlineCount += 1;
+				continue;
+			}
+			onlineCount += 1;
+			if (driverConfirmationRegistry().isWaitingDriverConfirmation(vehicle)) {
+				waitingConfirmationCount += 1;
+			}
+			vehicle.getSchedule()
+		}
+		long totalCount = onlineCount + offlineCount;
+		return "{online: " + strPercentage(onlineCount, totalCount)
+				+ ", offline: " + strPercentage(offlineCount, totalCount)
+				+ ", waitingConf: " + strPercentage(waitingConfirmationCount, totalCount)
+				+ "}";
+	}
+	private String strPercentage(long count, long total) {
+		return String.format("%d/%d (%.1f%%)", count, total, count * 1.0 / total);
 	}
 }

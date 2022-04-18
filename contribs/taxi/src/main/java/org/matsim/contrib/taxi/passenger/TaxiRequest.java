@@ -61,6 +61,9 @@ public class TaxiRequest implements PassengerRequest {
 	private TaxiPickupTask pickupTask;
 	private TaxiDropoffTask dropoffTask;
 
+	// number of times the req was selected for schedule. Usually 1. Higher when no vehicle available.
+	public int scheduleAttempts = 0;
+
 	public TaxiRequest(Id<Request> id, Id<Person> passengerId, String mode, Link fromLink, Link toLink,
 			double earliestStartTime, double submissionTime, double latestStartTime) {
 		this.id = id;
@@ -164,6 +167,7 @@ public class TaxiRequest implements PassengerRequest {
 				.add("mode", mode)
 				.add("fromLink", fromLink)
 				.add("toLink", toLink)
+				.add("scheduleAttempts", scheduleAttempts)
 				.toString();
 	}
 }

@@ -24,6 +24,7 @@ import static org.matsim.contrib.taxi.schedule.TaxiTaskBaseType.OCCUPIED_DRIVE;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
@@ -87,7 +88,7 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 			}
 
 			if (taxiCfg.getMaxSearchDuration() >= 0) {
-				expireUnplannedOldRequests();
+				expireUnplannedOldRequests(e.getSimulationTime());
 			}
 
 			// TODO update timeline only if the algo really wants to reschedule in this time step,
@@ -144,7 +145,15 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 		this.requiresReoptimization = requiresReoptimization;
 	}
 
-	private void expireUnplannedOldRequests() {
-		unplannedRequests.removeExpiredRequests().forEach(scheduler::requestExpired);
+	private void expireUnplannedOldRequests(double simulationTime) {
+		Collection<TaxiRequest> expiredRequests = unplannedRequests.removeExpiredRequests();
+		if (expiredRequests.size() > 0) {
+			log.debug("NOW: " + simulationTime
+					+ ", expiredRequests #" + expiredRequests.size()
+					+ ", remaining: " + unplannedRequests.getSchedulableRequests().size()
+			        + ", idleVehicles: " + fleet.getVehicles().values().stream().filter(scheduler.getScheduleInquiry()::isIdle).count());
+			expiredRequests.stream().limit(3).forEach(r -> log.warn(" - expired: " + r));
+		}
+		expiredRequests.forEach(scheduler::requestExpired);
 	}
 }

@@ -48,8 +48,7 @@ public class TaxiSimulationConsistencyChecker implements MobsimBeforeCleanupList
 					throw new IllegalStateException(
 							"Not all taxi requests served at simulation end time. This exception can be disabled in the taxi config group.");
 				} else {
-					Logger.getLogger(getClass())
-							.warn("Taxi request not performed. Request time:\t" + Time.writeTime(
+					log.debug("Taxi request not performed. Request time:\t" + Time.writeTime(
 									seq.getSubmitted().getTime()) + "\tPassenger:\t" + seq.getSubmitted()
 									.getPersonId());
 				}

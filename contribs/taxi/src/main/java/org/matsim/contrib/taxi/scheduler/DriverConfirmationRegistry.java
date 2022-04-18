@@ -33,11 +33,13 @@ public class DriverConfirmationRegistry {
 		return dc;
 	}
 
-	public void removeDriverConfirmation(TaxiRequest req) {
+	public boolean removeDriverConfirmation(TaxiRequest req) {
 		DriverConfirmation dc = getDriverConfirmation(req);
-		if (dc != null) {
-			removeDriverConfirmation(dc);
+		if (dc == null) {
+			return false;
 		}
+		removeDriverConfirmation(dc);
+		return true;
 	}
 
 	public void removeDriverConfirmation(DriverConfirmation dc) {
