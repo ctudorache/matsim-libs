@@ -207,7 +207,7 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 
 			case PERFORMED:
 			default:
-				throw new IllegalStateException();
+				throw new IllegalStateException("Last task: " + lastTask);
 		}
 
 		if (vrpPath.getLinkCount() > 1) {
