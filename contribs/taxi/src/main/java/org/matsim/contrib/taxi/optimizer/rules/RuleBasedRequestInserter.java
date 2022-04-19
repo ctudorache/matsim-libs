@@ -154,12 +154,13 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 				// req is still unplanned, but it was already sent to a driver who is yet to confirm it
 				continue;
 			}
-			if (!dc.isAccepted()) {
-				throw new RuntimeException("DriverConfirmation rejection NOT-IMPLEMENTED");
+			driverConfirmationRegistry().removeDriverConfirmation(dc);
+			if (!dc.isAccepted() || scheduler.getScheduleInquiry().isOutOfService(dc.vehicle)) {
+				// req was refused, or vehicle out of service
+				continue;
 			}
 
 			// req is accepted => schedule it
-			driverConfirmationRegistry().removeDriverConfirmation(dc);
 			scheduler.scheduleRequest(dc.vehicle, dc.request, dc.getPathToPickup(timer.getTimeOfDay()));
 
 			log.debug("CTudorache req planned, removing from unplanned");
@@ -203,12 +204,13 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 				// req is still unplanned, but it was already sent to a driver who is yet to confirm it
 				continue;
 			}
-			if (!dc.isAccepted()) {
-				throw new RuntimeException("DriverConfirmation rejection NOT-IMPLEMENTED");
+			driverConfirmationRegistry().removeDriverConfirmation(dc);
+			if (!dc.isAccepted() || scheduler.getScheduleInquiry().isOutOfService(dc.vehicle)) {
+				// req was refused, or vehicle out of service
+				continue;
 			}
 
 			// req is accepted => schedule it
-			driverConfirmationRegistry().removeDriverConfirmation(dc);
 			scheduler.scheduleRequest(dc.vehicle, dc.request, dc.getPathToPickup(timer.getTimeOfDay()));
 
 			log.debug("CTudorache req planned, removing from unplanned");

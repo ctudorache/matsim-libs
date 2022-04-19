@@ -49,6 +49,14 @@ public class TaxiScheduleInquiry implements ScheduleInquiry {
 		this.driverConfirmationRegistry = driverConfirmationRegistry;
 	}
 
+	public boolean isInService(DvrpVehicle vehicle) {
+		return vehicle.getServiceBeginTime() < timer.getTimeOfDay() && timer.getTimeOfDay() < vehicle.getServiceEndTime();
+	}
+
+	public boolean isOutOfService(DvrpVehicle vehicle) {
+		return !isInService(vehicle);
+	}
+
 	@Override
 	public boolean isIdle(DvrpVehicle vehicle) {
 		Schedule schedule = vehicle.getSchedule();

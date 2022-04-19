@@ -128,6 +128,9 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 
 	public void scheduleRequest(DvrpVehicle vehicle, TaxiRequest request, VrpPathWithTravelData vrpPath) {
 		log.debug("CTudorache scheduleRequest vehicle: " + vehicle + ", req: " + request);
+		if (taxiScheduleInquiry.isOutOfService(vehicle)) {
+			throw new IllegalStateException("Vehicle out of service: " + vehicle + ", req: " + request);
+		}
 		if (request.getStatus() != TaxiRequestStatus.UNPLANNED) {
 			throw new IllegalStateException();
 		}

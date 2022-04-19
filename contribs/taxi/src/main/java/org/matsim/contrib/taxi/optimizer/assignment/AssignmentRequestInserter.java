@@ -95,7 +95,6 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 			if (!dc.isComplete()) {
 				continue;
 			}
-			assert dc.isAccepted();
 			requestsToSchedule.add(dc);
 		}
 
@@ -141,17 +140,18 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 		for (Dispatch<TaxiRequest> a : assignments) {
 			DriverConfirmation dc = driverConfirmationRegistry().addDriverConfirmation(a.destination, a.vehicle, a.path);
 			if (dc.isComplete()) {
-				assert dc.isAccepted();
 				requestsToSchedule.add(dc);
 			}
 		}
 
 		// schedule the confirmed requests
 		for (DriverConfirmation dc : requestsToSchedule) {
-			assert dc.isAccepted();
+			assert dc.isComplete();
 			driverConfirmationRegistry().removeDriverConfirmation(dc);
-			scheduler.scheduleRequest(dc.vehicle, dc.request, dc.getPathToPickup(timer.getTimeOfDay()));
-			unplannedRequests.remove(dc.request);
+			if (dc.isAccepted() && scheduler.getScheduleInquiry().isInService(dc.vehicle)) {
+				scheduler.scheduleRequest(dc.vehicle, dc.request, dc.getPathToPickup(timer.getTimeOfDay()));
+				unplannedRequests.remove(dc.request);
+			}
 		}
 
 	}
