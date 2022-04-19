@@ -198,4 +198,8 @@ public class VehicleAssignmentProblem<D> {
 
 		return dispatches;
 	}
+
+	public OneToManyPathSearch pathSearch() {
+		return pathSearch;
+	}
 }

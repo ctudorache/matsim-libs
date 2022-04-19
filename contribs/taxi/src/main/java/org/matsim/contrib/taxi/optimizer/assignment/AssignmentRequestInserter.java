@@ -18,15 +18,18 @@
 
 package org.matsim.contrib.taxi.optimizer.assignment;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
+import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.network.Network;
 import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
 import org.matsim.contrib.dvrp.fleet.Fleet;
+import org.matsim.contrib.dvrp.path.OneToManyPathSearch;
+import org.matsim.contrib.dvrp.schedule.Schedules;
+import org.matsim.contrib.dvrp.util.LinkTimePair;
 import org.matsim.contrib.taxi.optimizer.BestDispatchFinder.Dispatch;
 import org.matsim.contrib.taxi.optimizer.UnplannedRequestInserter;
 import org.matsim.contrib.taxi.optimizer.VehicleData;
@@ -118,11 +121,15 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 		AssignmentCost<TaxiRequest> cost = assignmentCostProvider.getCost(rData, vData);
 		List<Dispatch<TaxiRequest>> assignments = assignmentProblem.findAssignments(vData, rData, cost);
 		if (rData.getSize() > assignments.size()) {
+			Set<TaxiRequest> input = rData.getEntries().stream().map(e -> e.destination).collect(Collectors.toSet());
+			Set<TaxiRequest> output = assignments.stream().map(e -> e.destination).collect(Collectors.toSet());
+			input.removeAll(output);
 			log.warn("CTudorache Cannot find a matching driver for all req"
 					+ ", req urgent/all: " + rData.getSize() + "/" + rData.getUrgentReqCount()
 					+ ", taxi idle/all: " + vData.getSize() + "/" + vData.getIdleCount()
 					+ ", horizon: " + vehPlanningHorizonSec + " (" + vehPlanningHorizonName + ")"
-					+ ", assigned: " + assignments.size() + ", fleet: " + strFleetState());
+					+ ", assigned: " + assignments.size() + ", diffSize: " + input.size()
+					+ ", fleet: " + strFleetState(input));
 		}
 
 		log.debug("CTudorache scheduleUnplannedRequests dispatching: #" + assignments.size());
@@ -142,6 +149,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 		// schedule the confirmed requests
 		for (DriverConfirmation dc : requestsToSchedule) {
 			assert dc.isAccepted();
+			driverConfirmationRegistry().removeDriverConfirmation(dc);
 			scheduler.scheduleRequest(dc.vehicle, dc.request, dc.getPathToPickup(timer.getTimeOfDay()));
 			unplannedRequests.remove(dc.request);
 		}
@@ -161,31 +169,73 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 		return scheduler.getDriverConfirmationRegistry();
 	}
 
-	private String strFleetState() {
+	private String strFleetState(Set<TaxiRequest> failedOrders) {
 		final double now = timer.getTimeOfDay();
-		long onlineCount = 0;
 		long offlineCount = 0;
+		long onlineCount = 0;
 		long waitingConfirmationCount = 0;
+		DescriptiveStatistics waitingConfirmationDueSec = new DescriptiveStatistics();
 		long drivingCount = 0;
-		long stationaryCount = 0;
+		class VehicleLinkTime {
+			final DvrpVehicle vehicle;
+			final Link link;
+			final double time;
+			VehicleLinkTime(DvrpVehicle vehicle, Link link, double time) {
+				this.vehicle = vehicle;
+				this.link = link;
+				this.time = time;
+			}
+		}
+		List<VehicleLinkTime> idleVehicles = new ArrayList<>();
 		for (DvrpVehicle vehicle : fleet.getVehicles().values()) {
 			if (now < vehicle.getServiceBeginTime() || vehicle.getServiceEndTime() < now) {
 				offlineCount += 1;
 				continue;
 			}
 			onlineCount += 1;
-			if (driverConfirmationRegistry().isWaitingDriverConfirmation(vehicle)) {
+
+			DriverConfirmation driverConfirmation = driverConfirmationRegistry().getDriverConfirmation(vehicle);
+			if (driverConfirmation != null) {
 				waitingConfirmationCount += 1;
+				waitingConfirmationDueSec.addValue(driverConfirmation.getDueSec(now));
+				continue;
 			}
-			vehicle.getSchedule()
+
+			LinkTimePair linkTimePair = scheduler.getScheduleInquiry().getEarliestIdleness(vehicle);
+			if (linkTimePair == null || linkTimePair.time > now + params.getVehPlanningHorizonUndersupply()) {
+				drivingCount += 1;
+				continue;
+			}
+
+			idleVehicles.add(new VehicleLinkTime(vehicle, linkTimePair.link, linkTimePair.time));
 		}
+
+		// list of idle vehicles
+		final List<Link> idleVehicleLinks = idleVehicles.stream().map(v -> v.link).collect(Collectors.toList());
+		// list of failed orders
+		final List<Link> failedOrdersLinks = failedOrders.stream().map(ord -> ord.getFromLink()).collect(Collectors.toList());
+
+		// compute avg time between all pairs of idle vehicles -> failed orders
+		DescriptiveStatistics etaToIdleVehicleSec = new DescriptiveStatistics();
+		for (Link idleVehicleLink : idleVehicleLinks) {
+			Map<Link, OneToManyPathSearch.PathData> paths = assignmentProblem.pathSearch().calcPathDataMap(idleVehicleLink, failedOrdersLinks, now, true);
+			paths.values().forEach(pdata -> etaToIdleVehicleSec.addValue(pdata.getTravelTime()));
+		}
+
 		long totalCount = onlineCount + offlineCount;
-		return "{online: " + strPercentage(onlineCount, totalCount)
-				+ ", offline: " + strPercentage(offlineCount, totalCount)
+		return "{offline: " + strPercentage(offlineCount, totalCount)
+				+ ", online: " + strPercentage(onlineCount, totalCount)
+				+ ", driving:: " + strPercentage(drivingCount, totalCount)
 				+ ", waitingConf: " + strPercentage(waitingConfirmationCount, totalCount)
+				+ ", waitingConfDueSec: " + strDescriptiveStats(waitingConfirmationDueSec)
+				+ ", idle: " + strPercentage(idleVehicles.size(), totalCount)
+				+ ", etaToIdleVehicles: " + strDescriptiveStats(etaToIdleVehicleSec)
 				+ "}";
 	}
+	private String strDescriptiveStats(DescriptiveStatistics ds) {
+		return String.format("{avg: %.1f, min: %.1f, max: %.1f}", ds.getMean(), ds.getMin(), ds.getMax());
+	}
 	private String strPercentage(long count, long total) {
-		return String.format("%d/%d (%.1f%%)", count, total, count * 1.0 / total);
+		return String.format("%d/%d (%.1f%%)", count, total, count * 100.0 / total);
 	}
 }

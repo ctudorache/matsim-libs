@@ -26,9 +26,9 @@ import com.google.common.collect.ImmutableList;
 public class AssignmentDestinationData<D> {
 	public static class DestEntry<D> {
 		public final int idx;
-		public final D destination;
-		public final Link link;
-		public final double time;
+		public final D destination; // TaxiRequest
+		public final Link link; // fromLink
+		public final double time; // departure time
 
 		public DestEntry(int idx, D destination, Link link, double time) {
 			this.idx = idx;

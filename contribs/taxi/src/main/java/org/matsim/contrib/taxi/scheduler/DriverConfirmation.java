@@ -10,7 +10,7 @@ public class DriverConfirmation {
 	public final DvrpVehicle vehicle;
 	private final VrpPathWithTravelData pathToPickup;
 
-	final double endTime; // DriverConfirmation is due at this moment
+	public final double endTime; // DriverConfirmation is due at this moment
 
 	private boolean isComplete = false;
 	private boolean isAccepted = false;
@@ -37,6 +37,10 @@ public class DriverConfirmation {
 
 	public VrpPathWithTravelData getPathToPickup(double now) {
 		return pathToPickup.getDepartureTime() < now ? pathToPickup.withDepartureTime(now) : pathToPickup;
+	}
+
+	public double getDueSec(double now) {
+		return endTime - now;
 	}
 
 	@Override
