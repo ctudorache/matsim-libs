@@ -119,7 +119,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 
 		AssignmentCost<TaxiRequest> cost = assignmentCostProvider.getCost(rData, vData);
 		List<Dispatch<TaxiRequest>> assignments = assignmentProblem.findAssignments(vData, rData, cost);
-		if (rData.getSize() > assignments.size()) {
+		if (rData.getSize() > assignments.size() && params.isDebugAssignmentFailure()) {
 			Set<TaxiRequest> input = rData.getEntries().stream().map(e -> e.destination).collect(Collectors.toSet());
 			Set<TaxiRequest> output = assignments.stream().map(e -> e.destination).collect(Collectors.toSet());
 			input.removeAll(output);

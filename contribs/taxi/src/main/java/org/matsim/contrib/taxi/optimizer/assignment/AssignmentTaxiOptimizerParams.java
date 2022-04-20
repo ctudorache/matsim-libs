@@ -26,6 +26,7 @@ import jakarta.validation.constraints.Positive;
 
 import org.matsim.contrib.taxi.optimizer.AbstractTaxiOptimizerParams;
 import org.matsim.contrib.taxi.optimizer.assignment.TaxiToRequestAssignmentCostProvider.Mode;
+import org.matsim.contrib.taxi.run.TaxiConfigGroup;
 import org.matsim.core.config.Config;
 
 public final class AssignmentTaxiOptimizerParams extends AbstractTaxiOptimizerParams {
@@ -91,6 +92,10 @@ public final class AssignmentTaxiOptimizerParams extends AbstractTaxiOptimizerPa
 	@Positive
 	private int reoptimizationTimeStep = 10;
 
+	public static final String DEBUG_ASSIGNMENT_FAILURE = "debugAssignmentFailure";
+	static final String DEBUG_ASSIGNMENT_FAILURE_EXP = "When assignment fails, print detailed info about fleet.";
+	private boolean debugAssignmentFailure = false;
+
 	public AssignmentTaxiOptimizerParams() {
 		super(SET_NAME, true, true);
 	}
@@ -114,6 +119,7 @@ public final class AssignmentTaxiOptimizerParams extends AbstractTaxiOptimizerPa
 		map.put(NEAREST_REQUESTS_LIMIT, NEAREST_REQUESTS_LIMIT_EXP);
 		map.put(NEAREST_VEHICLES_LIMIT, NEAREST_VEHICLES_LIMIT_EXP);
 		map.put(NULL_PATH_COST, NULL_PATH_COST_EXP);
+		map.put(DEBUG_ASSIGNMENT_FAILURE, DEBUG_ASSIGNMENT_FAILURE_EXP);
 		return map;
 	}
 
@@ -221,5 +227,15 @@ public final class AssignmentTaxiOptimizerParams extends AbstractTaxiOptimizerPa
 	@StringSetter(REOPTIMIZATION_TIME_STEP)
 	public void setReoptimizationTimeStep(int reoptimizationTimeStep) {
 		this.reoptimizationTimeStep = reoptimizationTimeStep;
+	}
+
+	@StringSetter(DEBUG_ASSIGNMENT_FAILURE)
+	public void setDebugAssignmentFailure(boolean value) {
+		this.debugAssignmentFailure = value;
+	}
+
+	@StringGetter(DEBUG_ASSIGNMENT_FAILURE)
+	public boolean isDebugAssignmentFailure() {
+		return this.debugAssignmentFailure;
 	}
 }
