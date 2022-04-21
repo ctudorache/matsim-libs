@@ -130,7 +130,7 @@ public class RuleBasedRequestInserter implements UnplannedRequestInserter {
 
 				log.debug("CTudorache scheduleUnplannedRequestsImpl req: " + req + ", selectedVehs: ");
 				selectedVehs = selectedVehs.peek(v -> {
-					log.warn(" - " + v);
+					log.debug(" - " + v);
 				});
 
 				BestDispatchFinder.Dispatch<TaxiRequest> best = dispatchFinder.findBestVehicleForRequest(req, selectedVehs);

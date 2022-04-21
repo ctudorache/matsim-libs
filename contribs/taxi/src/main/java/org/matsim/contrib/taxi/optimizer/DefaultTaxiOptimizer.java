@@ -147,12 +147,12 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 
 	private void expireUnplannedOldRequests(double simulationTime) {
 		Collection<TaxiRequest> expiredRequests = unplannedRequests.removeExpiredRequests();
-		if (expiredRequests.size() > 0) {
+		if (expiredRequests.size() > 0 && log.isDebugEnabled()) {
 			log.debug("NOW: " + simulationTime
 					+ ", expiredRequests #" + expiredRequests.size()
 					+ ", remaining: " + unplannedRequests.getSchedulableRequests().size()
 			        + ", idleVehicles: " + fleet.getVehicles().values().stream().filter(scheduler.getScheduleInquiry()::isIdle).count());
-			expiredRequests.stream().limit(3).forEach(r -> log.warn(" - expired: " + r));
+			expiredRequests.stream().limit(3).forEach(r -> log.debug(" - expired: " + r));
 		}
 		expiredRequests.forEach(scheduler::requestExpired);
 	}
