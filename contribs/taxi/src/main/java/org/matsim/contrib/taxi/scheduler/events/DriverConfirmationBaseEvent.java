@@ -7,7 +7,12 @@ import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
 import org.matsim.contrib.dvrp.optimizer.Request;
 import org.matsim.core.api.internal.HasPersonId;
 
+import java.util.Map;
+
 public abstract class DriverConfirmationBaseEvent extends Event implements HasPersonId {
+
+	public static final String ATTRIBUTE_REQUEST = "request";
+	public static final String ATTRIBUTE_VEHICLE = "vehicle";
 
 	private final Id<Request> requestId;
 	private final Id<Person> passengerId;
@@ -31,5 +36,13 @@ public abstract class DriverConfirmationBaseEvent extends Event implements HasPe
 
 	public Id<DvrpVehicle> getVehicleId() {
 		return vehicleId;
+	}
+
+	@Override
+	public Map<String, String> getAttributes() {
+		Map<String, String> attr = super.getAttributes();
+		attr.put(ATTRIBUTE_REQUEST, requestId.toString());
+		attr.put(ATTRIBUTE_VEHICLE, vehicleId.toString());
+		return attr;
 	}
 }
