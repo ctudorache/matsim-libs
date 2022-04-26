@@ -110,7 +110,7 @@ public class TaxiModeQSimModule extends AbstractDvrpModeQSimModule {
 					public TaxiScheduler get() {
 						var travelTime = getModalInstance(TravelTime.class);
 						Fleet fleet = getModalInstance(Fleet.class);
-						DriverConfirmationRegistry driverConfirmationRegistry = new DriverConfirmationRegistry(taxiCfg, timer);
+						DriverConfirmationRegistry driverConfirmationRegistry = new DriverConfirmationRegistry(taxiCfg, timer, events);
 						TaxiScheduleInquiry taxiScheduleInquiry = new TaxiScheduleInquiry(taxiCfg, timer, driverConfirmationRegistry);
 						Network network = getModalInstance(Network.class);
 						TravelDisutility travelDisutility = getModalInstance(

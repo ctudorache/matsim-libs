@@ -5,6 +5,9 @@ import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
 import org.matsim.contrib.dvrp.path.VrpPathWithTravelData;
 import org.matsim.contrib.taxi.passenger.TaxiRequest;
 import org.matsim.contrib.taxi.run.TaxiConfigGroup;
+import org.matsim.contrib.taxi.scheduler.events.DriverConfirmationCompletedEvent;
+import org.matsim.contrib.taxi.scheduler.events.DriverConfirmationCreatedEvent;
+import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.mobsim.framework.MobsimTimer;
 
 import java.util.ArrayList;
@@ -14,22 +17,25 @@ public class DriverConfirmationRegistry {
 	private static final Logger log = Logger.getLogger(DriverConfirmationRegistry.class);
 	private final TaxiConfigGroup taxiCfg;
 	private final MobsimTimer timer;
+	private final EventsManager eventsManager;
 
 	// TODO(CTudorache): performance
 	private final List<DriverConfirmation> confirmations = new ArrayList<>();
 
-	public DriverConfirmationRegistry(TaxiConfigGroup taxiCfg, MobsimTimer timer) {
+	public DriverConfirmationRegistry(TaxiConfigGroup taxiCfg, MobsimTimer timer, EventsManager eventsManager) {
 		this.taxiCfg = taxiCfg;
 		this.timer = timer;
+		this.eventsManager = eventsManager;
 	}
 
-	public DriverConfirmation addDriverConfirmation(TaxiRequest request, DvrpVehicle vehicle, VrpPathWithTravelData pathToPickup) {
-		DriverConfirmation dc = new DriverConfirmation(request, vehicle, pathToPickup, timer.getTimeOfDay() + taxiCfg.getDriverConfirmationDelay());
+	public DriverConfirmation addDriverConfirmation(TaxiRequest req, DvrpVehicle vehicle, VrpPathWithTravelData pathToPickup) {
+		DriverConfirmation dc = new DriverConfirmation(req, vehicle, pathToPickup, timer.getTimeOfDay() + taxiCfg.getDriverConfirmationDelay());
 		updateDriverConfirmation(dc);
 		if (!dc.isComplete()) {
 			log.debug("CTudorache addDriverConfirmation: " + dc);
 			confirmations.add(dc);
 		}
+		eventsManager.processEvent(new DriverConfirmationCreatedEvent(timer.getTimeOfDay(), req.getId(), req.getPassengerId(), vehicle.getId()));
 		return dc;
 	}
 
@@ -45,6 +51,8 @@ public class DriverConfirmationRegistry {
 	public void removeDriverConfirmation(DriverConfirmation dc) {
 		log.debug("CTudorache removeDriverConfirmation: " + dc);
 		confirmations.remove(dc);
+		eventsManager.processEvent(new DriverConfirmationCompletedEvent(
+				timer.getTimeOfDay(), dc.request.getId(), dc.request.getPassengerId(), dc.vehicle.getId(), dc.isAccepted()));
 	}
 
 	public DriverConfirmation getDriverConfirmation(TaxiRequest req) {
