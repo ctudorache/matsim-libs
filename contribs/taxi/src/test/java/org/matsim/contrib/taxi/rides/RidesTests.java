@@ -2,9 +2,7 @@ package org.matsim.contrib.taxi.rides;
 
 import org.apache.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,7 +62,7 @@ public class RidesTests {
 	@Test
 	public void orderExpiresDueToNoAvailableVehicle() {
 		TestScenarioGenerator testScenario = new TestScenarioGenerator(taxiOptimizerParams);
-		testScenario.getTaxiCfg().setMaxSearchDuration(60.0); // order issued at: 00:65 and should expire in 60 sec => 125 sec
+		testScenario.getTaxiCfg().setOrderExpiration(60.0); // order issued at: 00:65 and should expire in 60 sec => 125 sec
 
 		GridNetworkGenerator gn = testScenario.buildGridNetwork( 3, 3);
 
@@ -87,7 +85,7 @@ public class RidesTests {
 	@Test
 	public void orderScheduledAfterDriverConfirmationDelay() {
 		TestScenarioGenerator testScenario = new TestScenarioGenerator(taxiOptimizerParams);
-		testScenario.getTaxiCfg().setMaxSearchDuration(125.0); // order should expire in 125 seconds
+		testScenario.getTaxiCfg().setOrderExpiration(125.0); // order should expire in 125 seconds
 		final double driverAcceptanceDelay = 60; // it takes driver 60 seconds to accept the order
 		testScenario.getTaxiCfg().setDriverConfirmationDelay(driverAcceptanceDelay);
 
@@ -139,7 +137,7 @@ public class RidesTests {
 	public void orderExpiresBecauseDriverAcceptanceDelayIsTooHigh() {
 		TestScenarioGenerator testScenario = new TestScenarioGenerator(taxiOptimizerParams);
 		final double orderExpiresSec = 25.0;
-		testScenario.getTaxiCfg().setMaxSearchDuration(orderExpiresSec);
+		testScenario.getTaxiCfg().setOrderExpiration(orderExpiresSec);
 		final double driverAcceptanceDelay = 35; // order should expire while waiting for driver confirmation
 		testScenario.getTaxiCfg().setDriverConfirmationDelay(driverAcceptanceDelay);
 

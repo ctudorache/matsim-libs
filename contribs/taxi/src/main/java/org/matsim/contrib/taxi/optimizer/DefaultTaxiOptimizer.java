@@ -22,9 +22,7 @@ package org.matsim.contrib.taxi.optimizer;
 import static org.matsim.contrib.taxi.schedule.TaxiTaskBaseType.OCCUPIED_DRIVE;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
@@ -87,7 +85,7 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 				unscheduleAwaitingRequests();
 			}
 
-			if (taxiCfg.getMaxSearchDuration() >= 0) {
+			if (taxiCfg.getOrderExpiration() >= 0) {
 				expireUnplannedOldRequests(e.getSimulationTime());
 			}
 

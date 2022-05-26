@@ -36,7 +36,6 @@ import org.matsim.contrib.dvrp.run.DvrpModes;
 import org.matsim.contrib.taxi.scheduler.DriverConfirmationRegistry;
 import org.matsim.core.modal.ModalProviders;
 import org.matsim.contrib.dvrp.schedule.ScheduleTimingUpdater;
-import org.matsim.contrib.dvrp.trafficmonitoring.DvrpTravelTimeModule;
 import org.matsim.contrib.dvrp.vrpagent.VrpAgentLogic.DynActionCreator;
 import org.matsim.contrib.dvrp.vrpagent.VrpAgentSourceQSimModule;
 import org.matsim.contrib.taxi.analysis.TaxiEventSequenceCollector;
@@ -57,7 +56,6 @@ import org.matsim.core.router.util.TravelDisutility;
 import org.matsim.core.router.util.TravelTime;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 /**
  * @author michalm
@@ -148,7 +146,7 @@ public class TaxiModeQSimModule extends AbstractDvrpModeQSimModule {
 
 					@Override
 					public TaxiRequestCreator get() {
-						return new TaxiRequestCreator(getMode(), taxiCfg.getMaxSearchDuration(), events);
+						return new TaxiRequestCreator(getMode(), taxiCfg.getOrderExpiration(), events);
 					}
 				}).asEagerSingleton();
 

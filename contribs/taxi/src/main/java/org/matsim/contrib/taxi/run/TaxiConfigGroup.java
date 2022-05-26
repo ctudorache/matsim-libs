@@ -91,14 +91,14 @@ public final class TaxiConfigGroup extends ReflectiveConfigGroupWithConfigurable
 	public static final String DROPOFF_DURATION = "dropoffDuration";
 	static final String DROPOFF_DURATION_EXP = "Dropoff duration. Must be positive.";
 
-	public static final String MAX_SEARCH_DURATION = "maxSearchDuration";
-	static final String MAX_SEARCH_DURATION_EXP = "Max wait time to find a taxi, in seconds."
+	public static final String ORDER_EXPIRATION = "orderExpiration";
+	static final String ORDER_EXPIRATION_EXP = "Max wait time to find a taxi, in seconds."
 			+ " During this time the request stays unplanned and waits for a free vehicle."
 			+ " If the limit is exceeded, then the req is considered failed.";
 
 	public static final String DRIVER_CONFIRMATION_DELAY = "driverConfirmationDelay";
 	static final String DRIVER_CONFIRMATION_DELAY_EXP = "Time it takes the driver to accept the request."
-			+ " Should be less than maxSearchDuration, otherwise the req expires before the driver accepts.";
+			+ " Should be less than orderExpiration, otherwise the req expires before the driver accepts.";
 
 	public static final String ONLINE_VEHICLE_TRACKER = "onlineVehicleTracker";
 	static final String ONLINE_VEHICLE_TRACKER_EXP =
@@ -155,7 +155,7 @@ public final class TaxiConfigGroup extends ReflectiveConfigGroupWithConfigurable
 	@Positive
 	private double dropoffDuration = Double.NaN;// seconds
 
-	private double maxSearchDuration = -1; // seconds. Default: -1 => order never expires.
+	private double orderExpiration = -1; // seconds. Default: -1 => order never expires.
 
 	private double driverConfirmationDelay = 0; // seconds. Default: instant confirmation.
 
@@ -222,7 +222,7 @@ public final class TaxiConfigGroup extends ReflectiveConfigGroupWithConfigurable
 		map.put(VEHICLE_DIVERSION, VEHICLE_DIVERSION_EXP);
 		map.put(PICKUP_DURATION, PICKUP_DURATION_EXP);
 		map.put(DROPOFF_DURATION, DROPOFF_DURATION_EXP);
-		map.put(MAX_SEARCH_DURATION, MAX_SEARCH_DURATION_EXP);
+		map.put(ORDER_EXPIRATION, ORDER_EXPIRATION_EXP);
 		map.put(DRIVER_CONFIRMATION_DELAY, DRIVER_CONFIRMATION_DELAY_EXP);
 		map.put(ONLINE_VEHICLE_TRACKER, ONLINE_VEHICLE_TRACKER_EXP);
 		map.put(CHANGE_START_LINK_TO_LAST_LINK_IN_SCHEDULE, CHANGE_START_LINK_TO_LAST_LINK_IN_SCHEDULE_EXP);
@@ -339,20 +339,20 @@ public final class TaxiConfigGroup extends ReflectiveConfigGroupWithConfigurable
 	}
 
 	/**
-	 * @return {@value #MAX_SEARCH_DURATION_EXP}
+	 * @return {@value #ORDER_EXPIRATION_EXP}
 	 * WARNING: if negative => request never expires
 	 */
-	@StringGetter(MAX_SEARCH_DURATION)
-	public Double getMaxSearchDuration() {
-		return maxSearchDuration;
+	@StringGetter(ORDER_EXPIRATION)
+	public Double getOrderExpiration() {
+		return orderExpiration;
 	}
 
 	/**
-	 * @param maxSearchDuration {@value #MAX_SEARCH_DURATION_EXP}
+	 * @param orderExpiration {@value #ORDER_EXPIRATION_EXP}
 	 */
-	@StringSetter(MAX_SEARCH_DURATION)
-	public void setMaxSearchDuration(Double maxSearchDuration) {
-		this.maxSearchDuration = maxSearchDuration;
+	@StringSetter(ORDER_EXPIRATION)
+	public void setOrderExpiration(Double orderExpiration) {
+		this.orderExpiration = orderExpiration;
 	}
 
 	/**
