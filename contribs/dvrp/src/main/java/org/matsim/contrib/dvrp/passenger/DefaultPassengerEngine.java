@@ -157,6 +157,17 @@ public final class DefaultPassengerEngine implements PassengerEngine, PassengerR
 	}
 
 	@Override
+	public void pickUpPassengerCompleted(PassengerPickupActivity pickupActivity, MobsimDriverAgent driver,
+										 PassengerRequest request, double now) {
+		internalPassengerHandling.pickUpPassengerCompleted(driver, activePassengers.get(request.getId()), request.getId(), now);
+	}
+
+	@Override
+	public void dropOffPassengerStart(MobsimDriverAgent driver, PassengerRequest request, double now) {
+		internalPassengerHandling.dropOffPassengerStart(driver, activePassengers.get(request.getId()), request.getId(), now);
+	}
+
+	@Override
 	public void dropOffPassenger(MobsimDriverAgent driver, PassengerRequest request, double now) {
 		internalPassengerHandling.dropOffPassenger(driver, activePassengers.remove(request.getId()), request.getId(),
 				now);

@@ -47,6 +47,11 @@ public class SinglePassengerDropoffActivity extends FirstLastSimStepDynActivity 
 	}
 
 	@Override
+	protected void beforeFirstStep(double now) {
+		passengerHandler.dropOffPassengerStart(driver, request, now);
+	}
+
+	@Override
 	protected void afterLastStep(double now) {
 		passengerHandler.dropOffPassenger(driver, request, now);
 	}

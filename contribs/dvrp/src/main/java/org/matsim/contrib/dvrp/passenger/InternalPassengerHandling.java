@@ -91,6 +91,18 @@ class InternalPassengerHandling {
 		return true;
 	}
 
+	void pickUpPassengerCompleted(MobsimDriverAgent driver, MobsimPassengerAgent passenger, Id<Request> requestId, double now) {
+		MobsimVehicle mobVehicle = driver.getVehicle();
+		Id<DvrpVehicle> vehicleId = Id.create(mobVehicle.getId(), DvrpVehicle.class);
+		eventsManager.processEvent(new PassengerPickUpCompletedEvent(now, mode, requestId, passenger.getId(), vehicleId));
+	}
+
+	void dropOffPassengerStart(MobsimDriverAgent driver, MobsimPassengerAgent passenger, Id<Request> requestId, double now) {
+		MobsimVehicle mobVehicle = driver.getVehicle();
+		Id<DvrpVehicle> vehicleId = Id.create(mobVehicle.getId(), DvrpVehicle.class);
+		eventsManager.processEvent(new PassengerDropOffStartEvent(now, mode, requestId, passenger.getId(), vehicleId));
+	}
+
 	void dropOffPassenger(MobsimDriverAgent driver, MobsimPassengerAgent passenger, Id<Request> requestId, double now) {
 		MobsimVehicle mobVehicle = driver.getVehicle();
 		mobVehicle.removePassenger(passenger);

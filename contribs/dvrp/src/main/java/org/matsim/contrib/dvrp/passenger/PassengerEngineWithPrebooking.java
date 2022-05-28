@@ -225,6 +225,17 @@ public final class PassengerEngineWithPrebooking
 		return true;
 	}
 
+	@Override
+	public void pickUpPassengerCompleted(PassengerPickupActivity pickupActivity, MobsimDriverAgent driver,
+										 PassengerRequest request, double now) {
+		internalPassengerHandling.pickUpPassengerCompleted(driver, activeRequests.get(request.getId()).passenger, request.getId(), now);
+	}
+
+	@Override
+	public void dropOffPassengerStart(MobsimDriverAgent driver, PassengerRequest request, double now) {
+		internalPassengerHandling.dropOffPassengerStart(driver, activeRequests.get(request.getId()).passenger, request.getId(), now);
+	}
+
 	public void dropOffPassenger(MobsimDriverAgent driver, PassengerRequest request, double now) {
 		internalPassengerHandling.dropOffPassenger(driver, activeRequests.remove(request.getId()).passenger,
 				request.getId(), now);

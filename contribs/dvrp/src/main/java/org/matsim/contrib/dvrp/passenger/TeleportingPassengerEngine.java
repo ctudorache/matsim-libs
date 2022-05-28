@@ -189,6 +189,17 @@ public class TeleportingPassengerEngine implements PassengerEngine, VisData {
 	}
 
 	@Override
+	public void pickUpPassengerCompleted(PassengerPickupActivity pickupActivity, MobsimDriverAgent driver,
+										 PassengerRequest request, double now) {
+		throw new UnsupportedOperationException("No picking-up when teleporting");
+	}
+
+	@Override
+	public void dropOffPassengerStart(MobsimDriverAgent driver, PassengerRequest request, double now) {
+		throw new UnsupportedOperationException("No dropping-off when teleporting");
+	}
+
+	@Override
 	public void dropOffPassenger(MobsimDriverAgent driver, PassengerRequest request, double now) {
 		throw new UnsupportedOperationException("No dropping-off when teleporting");
 	}

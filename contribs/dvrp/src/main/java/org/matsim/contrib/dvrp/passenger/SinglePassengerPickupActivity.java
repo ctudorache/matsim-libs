@@ -53,6 +53,11 @@ public class SinglePassengerPickupActivity extends FirstLastSimStepDynActivity i
 	}
 
 	@Override
+	protected void afterLastStep(double now) {
+		passengerHandler.pickUpPassengerCompleted(this, driver, request, now);
+	}
+
+	@Override
 	public void notifyPassengerIsReadyForDeparture(MobsimPassengerAgent passenger, double now) {
 		if (passenger.getId().equals(request.getPassengerId())) {
 			throw new IllegalArgumentException("I am waiting for a different passenger!");
