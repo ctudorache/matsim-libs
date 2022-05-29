@@ -25,12 +25,26 @@ import org.matsim.contrib.dvrp.path.VrpPathWithTravelData;
 import org.matsim.contrib.dvrp.schedule.DefaultDriveTask;
 
 import com.google.common.base.Preconditions;
+import org.matsim.contrib.taxi.passenger.TaxiRequest;
+
+import javax.annotation.Nullable;
 
 public class TaxiEmptyDriveTask extends DefaultDriveTask {
 	public static final TaxiTaskType TYPE = new TaxiTaskType(EMPTY_DRIVE);
+	@Nullable
+	private TaxiRequest request;
 
-	public TaxiEmptyDriveTask(VrpPathWithTravelData path, TaxiTaskType taskType) {
+	public TaxiEmptyDriveTask(TaxiRequest request, VrpPathWithTravelData path, TaxiTaskType taskType) {
 		super(taskType, path);
+		this.request = request;
 		Preconditions.checkArgument(taskType.getBaseType().get() == EMPTY_DRIVE);
+	}
+
+	public TaxiRequest getRequest() {
+		return request;
+	}
+
+	public void setRequest(TaxiRequest request) {
+		this.request = request;
 	}
 }

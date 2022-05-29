@@ -82,7 +82,7 @@ public class ETaxiOptimizerProvider implements Provider<TaxiOptimizer> {
 					((RuleBasedETaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams()).getRuleBasedTaxiOptimizerParams(),
 					zonalRegisters);
 
-			return new RuleBasedETaxiOptimizer(eventsManager, taxiCfg, fleet, eScheduler, scheduleTimingUpdater,
+			return new RuleBasedETaxiOptimizer(eventsManager, taxiCfg, fleet, timer, eScheduler, scheduleTimingUpdater,
 					chargingInfrastructure, zonalRegisters, dispatchFinder, requestInserter);
 		} else if (type.equals(AssignmentETaxiOptimizerParams.SET_NAME)) {
 			LeastCostPathCalculator router = new SpeedyALTFactory().createPathCalculator(network, travelDisutility,

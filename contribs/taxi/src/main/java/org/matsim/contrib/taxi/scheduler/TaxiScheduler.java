@@ -57,6 +57,7 @@ import org.matsim.contrib.taxi.schedule.TaxiPickupTask;
 import org.matsim.contrib.taxi.schedule.TaxiStayTask;
 import org.matsim.contrib.taxi.schedule.TaxiTaskBaseType;
 import org.matsim.contrib.taxi.schedule.TaxiTaskType;
+import org.matsim.contrib.taxi.scheduler.events.TaxiEmptyDriveToPickupEvent;
 import org.matsim.contrib.util.ExecutorServiceWithResource;
 import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.mobsim.framework.MobsimTimer;
@@ -136,7 +137,7 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 		}
 
 		Schedule schedule = vehicle.getSchedule();
-		divertOrAppendDrive(schedule, vrpPath, TaxiEmptyDriveTask.TYPE);
+		divertOrAppendDrive(vehicle, request, vrpPath, TaxiEmptyDriveTask.TYPE);
 
 		double pickupEndTime = Math.max(vrpPath.getArrivalTime(), request.getEarliestStartTime())
 				+ taxiCfg.getPickupDuration();
@@ -165,16 +166,16 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 	}
 
 	// TODO(CTudorache): should be called divertOrAppendDriveToPickup()
-	protected void divertOrAppendDrive(Schedule schedule, VrpPathWithTravelData vrpPath, TaxiTaskType taskType) {
-		Task lastTask = Schedules.getLastTask(schedule);
+	protected void divertOrAppendDrive(DvrpVehicle vehicle, TaxiRequest request, VrpPathWithTravelData vrpPath, TaxiTaskType taskType) {
+		Task lastTask = Schedules.getLastTask(vehicle.getSchedule());
 		log.debug("CTudorache divertOrAppendDrive lastTask: " + lastTask);
 		switch (getBaseTypeOrElseThrow(lastTask)) {
 			case EMPTY_DRIVE:
-				divertDrive((TaxiEmptyDriveTask)lastTask, vrpPath);
+				divertDrive(vehicle, (TaxiEmptyDriveTask)lastTask, request, vrpPath);
 				return;
 
 			case STAY:
-				scheduleDrive(schedule, (TaxiStayTask)lastTask, vrpPath, taskType);
+				scheduleDrive(vehicle.getSchedule(), (TaxiStayTask)lastTask, request, vrpPath, taskType);
 				return;
 
 			default:
@@ -182,16 +183,22 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 		}
 	}
 
-	protected void divertDrive(TaxiEmptyDriveTask lastTask, VrpPathWithTravelData vrpPath) {
+	protected void divertDrive(DvrpVehicle vehicle, TaxiEmptyDriveTask lastTask, TaxiRequest request, VrpPathWithTravelData vrpPath) {
 		if (!taxiCfg.isVehicleDiversion()) {
 			throw new IllegalStateException();
 		}
 
 		((OnlineDriveTaskTracker)lastTask.getTaskTracker()).divertPath(vrpPath);
+
+		lastTask.setRequest(request);
+		if (request != null) {
+			eventsManager.processEvent(new TaxiEmptyDriveToPickupEvent(
+					mobsimTimer.getTimeOfDay(), request, vehicle.getId()));
+		}
 	}
 
 	// TODO(CTudorache): should be called scheduleDriveToPickup
-	protected void scheduleDrive(Schedule schedule, TaxiStayTask lastTask, VrpPathWithTravelData vrpPath,
+	protected void scheduleDrive(Schedule schedule, TaxiStayTask lastTask, TaxiRequest request, VrpPathWithTravelData vrpPath,
 			TaxiTaskType taskType) {
 		log.debug("CTudorache scheduleDrive lastTask: " + lastTask + ", vrpPath: " + vrpPath);
 		switch (lastTask.getStatus()) {
@@ -214,7 +221,7 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 		}
 
 		if (vrpPath.getLinkCount() > 1) {
-			schedule.addTask(new TaxiEmptyDriveTask(vrpPath, taskType));
+			schedule.addTask(new TaxiEmptyDriveTask(request, vrpPath, taskType));
 		}
 	}
 

@@ -38,6 +38,7 @@ import org.matsim.contrib.taxi.optimizer.rules.RuleBasedTaxiOptimizer;
 import org.matsim.contrib.taxi.optimizer.rules.ZonalRegisters;
 import org.matsim.contrib.taxi.run.TaxiConfigGroup;
 import org.matsim.core.api.experimental.events.EventsManager;
+import org.matsim.core.mobsim.framework.MobsimTimer;
 import org.matsim.core.mobsim.framework.events.MobsimBeforeSimStepEvent;
 
 public class RuleBasedETaxiOptimizer extends RuleBasedTaxiOptimizer {
@@ -49,11 +50,12 @@ public class RuleBasedETaxiOptimizer extends RuleBasedTaxiOptimizer {
 	private final ETaxiScheduler eScheduler;
 	private final IdleTaxiZonalRegistry idleTaxiRegistry;
 
-	public RuleBasedETaxiOptimizer(EventsManager eventsManager, TaxiConfigGroup taxiCfg, Fleet fleet,
+	public RuleBasedETaxiOptimizer(
+			EventsManager eventsManager, TaxiConfigGroup taxiCfg, Fleet fleet, MobsimTimer timer,
 			ETaxiScheduler eScheduler, ScheduleTimingUpdater scheduleTimingUpdater,
 			ChargingInfrastructure chargingInfrastructure, ZonalRegisters zonalRegisters,
 			BestDispatchFinder dispatchFinder, UnplannedRequestInserter requestInserter) {
-		super(eventsManager, taxiCfg, fleet, eScheduler, scheduleTimingUpdater, zonalRegisters, requestInserter);
+		super(eventsManager, taxiCfg, fleet, timer, eScheduler, scheduleTimingUpdater, zonalRegisters, requestInserter);
 		this.params = (RuleBasedETaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams();
 		this.chargingInfrastructure = chargingInfrastructure;
 		this.eScheduler = eScheduler;

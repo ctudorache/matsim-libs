@@ -63,7 +63,7 @@ public class ETaxiScheduler extends TaxiScheduler {
 	public void scheduleCharging(DvrpVehicle vehicle, ElectricVehicle ev, Charger charger,
 			VrpPathWithTravelData vrpPath) {
 		Schedule schedule = vehicle.getSchedule();
-		divertOrAppendDrive(schedule, vrpPath, DRIVE_TO_CHARGER);
+		divertOrAppendDrive(vehicle, null, vrpPath, DRIVE_TO_CHARGER);
 
 		ChargingWithAssignmentLogic logic = (ChargingWithAssignmentLogic)charger.getLogic();
 		double chargingEndTime = vrpPath.getArrivalTime() + ChargingEstimations.estimateMaxWaitTimeForNextVehicle(

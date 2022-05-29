@@ -36,6 +36,7 @@ import org.matsim.contrib.taxi.run.TaxiConfigGroup;
 import org.matsim.contrib.taxi.schedule.TaxiStayTask;
 import org.matsim.contrib.taxi.scheduler.TaxiScheduler;
 import org.matsim.core.api.experimental.events.EventsManager;
+import org.matsim.core.mobsim.framework.MobsimTimer;
 
 /**
  * @author michalm
@@ -46,10 +47,10 @@ public class RuleBasedTaxiOptimizer extends DefaultTaxiOptimizer {
 	private final IdleTaxiZonalRegistry idleTaxiRegistry;
 	private final UnplannedRequestZonalRegistry unplannedRequestRegistry;
 
-	public RuleBasedTaxiOptimizer(EventsManager eventsManager, TaxiConfigGroup taxiCfg, Fleet fleet,
-			TaxiScheduler scheduler, ScheduleTimingUpdater scheduleTimingUpdater, ZonalRegisters zonalRegisters,
-			UnplannedRequestInserter requestInserter) {
-		super(eventsManager, taxiCfg, fleet, scheduler, scheduleTimingUpdater, requestInserter);
+	public RuleBasedTaxiOptimizer(EventsManager eventsManager, TaxiConfigGroup taxiCfg, Fleet fleet, MobsimTimer timer,
+								  TaxiScheduler scheduler, ScheduleTimingUpdater scheduleTimingUpdater, ZonalRegisters zonalRegisters,
+								  UnplannedRequestInserter requestInserter) {
+		super(eventsManager, taxiCfg, fleet, timer, scheduler, scheduleTimingUpdater, requestInserter);
 
 		this.scheduler = scheduler;
 		this.idleTaxiRegistry = zonalRegisters.idleTaxiRegistry;

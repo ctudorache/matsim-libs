@@ -80,14 +80,14 @@ public class DefaultTaxiOptimizerProvider implements Provider<TaxiOptimizer> {
 			case AssignmentTaxiOptimizerParams.SET_NAME: {
 				var requestInserter = new AssignmentRequestInserter(fleet, network, timer, travelTime, travelDisutility,
 						scheduler, (AssignmentTaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams());
-				return new DefaultTaxiOptimizer(eventsManager, taxiCfg, fleet, scheduler, scheduleTimingUpdater,
+				return new DefaultTaxiOptimizer(eventsManager, taxiCfg, fleet, timer, scheduler, scheduleTimingUpdater,
 						requestInserter);
 			}
 
 			case FifoTaxiOptimizerParams.SET_NAME: {
 				var requestInserter = new FifoRequestInserter(network, fleet, timer, travelTime, travelDisutility,
 						scheduler);
-				return new DefaultTaxiOptimizer(eventsManager, taxiCfg, fleet, scheduler, scheduleTimingUpdater,
+				return new DefaultTaxiOptimizer(eventsManager, taxiCfg, fleet, timer, scheduler, scheduleTimingUpdater,
 						requestInserter);
 			}
 
@@ -97,7 +97,7 @@ public class DefaultTaxiOptimizerProvider implements Provider<TaxiOptimizer> {
 				var requestInserter = new RuleBasedRequestInserter(scheduler, timer, network, travelTime,
 						travelDisutility, ((RuleBasedTaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams()),
 						zonalRegisters);
-				return new RuleBasedTaxiOptimizer(eventsManager, taxiCfg, fleet, scheduler, scheduleTimingUpdater,
+				return new RuleBasedTaxiOptimizer(eventsManager, taxiCfg, fleet, timer, scheduler, scheduleTimingUpdater,
 						zonalRegisters, requestInserter);
 			}
 
@@ -106,7 +106,7 @@ public class DefaultTaxiOptimizerProvider implements Provider<TaxiOptimizer> {
 						((ZonalTaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams()).getRuleBasedTaxiOptimizerParams());
 				var requestInserter = new ZonalRequestInserter(fleet, scheduler, timer, network, travelTime,
 						travelDisutility, ((ZonalTaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams()), zonalRegisters, context);
-				return new RuleBasedTaxiOptimizer(eventsManager, taxiCfg, fleet, scheduler, scheduleTimingUpdater,
+				return new RuleBasedTaxiOptimizer(eventsManager, taxiCfg, fleet, timer, scheduler, scheduleTimingUpdater,
 						zonalRegisters, requestInserter);
 			}
 

@@ -87,7 +87,7 @@ public class AssignmentETaxiOptimizer extends DefaultTaxiOptimizer {
 									MobsimTimer timer, Network network, TravelTime travelTime, TravelDisutility travelDisutility,
 									ETaxiScheduler eScheduler, ScheduleTimingUpdater scheduleTimingUpdater,
 									ChargingInfrastructure chargingInfrastructure, LeastCostPathCalculator router) {
-		super(eventsManager, taxiCfg, fleet, eScheduler, scheduleTimingUpdater,
+		super(eventsManager, taxiCfg, fleet, timer, eScheduler, scheduleTimingUpdater,
 				new AssignmentRequestInserter(fleet, timer, network, travelTime, travelDisutility, eScheduler,
 						((AssignmentETaxiOptimizerParams)taxiCfg.getTaxiOptimizerParams()).getAssignmentTaxiOptimizerParams(),
 						router));

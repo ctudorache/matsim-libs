@@ -19,6 +19,7 @@
 
 package org.matsim.contrib.taxi.optimizer;
 
+import static org.matsim.contrib.taxi.schedule.TaxiTaskBaseType.EMPTY_DRIVE;
 import static org.matsim.contrib.taxi.schedule.TaxiTaskBaseType.OCCUPIED_DRIVE;
 
 import java.util.Collection;
@@ -33,8 +34,11 @@ import org.matsim.contrib.dvrp.schedule.ScheduleTimingUpdater;
 import org.matsim.contrib.dvrp.schedule.Task;
 import org.matsim.contrib.taxi.passenger.TaxiRequest;
 import org.matsim.contrib.taxi.run.TaxiConfigGroup;
+import org.matsim.contrib.taxi.schedule.TaxiEmptyDriveTask;
 import org.matsim.contrib.taxi.scheduler.TaxiScheduler;
+import org.matsim.contrib.taxi.scheduler.events.TaxiEmptyDriveToPickupEvent;
 import org.matsim.core.api.experimental.events.EventsManager;
+import org.matsim.core.mobsim.framework.MobsimTimer;
 import org.matsim.core.mobsim.framework.events.MobsimBeforeSimStepEvent;
 
 /**
@@ -44,6 +48,8 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 	private static final Logger log = Logger.getLogger(DefaultTaxiOptimizer.class);
 	private final Fleet fleet;
 	private final TaxiScheduler scheduler;
+	private final EventsManager eventsManager;
+	private final MobsimTimer timer;
 
 	private final RequestQueue<TaxiRequest> unplannedRequests = RequestQueue.withNoAdvanceRequestPlanningHorizon();
 
@@ -55,11 +61,13 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 	private boolean requiresReoptimization = false;
 	private final ScheduleTimingUpdater scheduleTimingUpdater;
 
-	public DefaultTaxiOptimizer(EventsManager eventsManager, TaxiConfigGroup taxiCfg, Fleet fleet,
-			TaxiScheduler scheduler, ScheduleTimingUpdater scheduleTimingUpdater,
-			UnplannedRequestInserter requestInserter) {
+	public DefaultTaxiOptimizer(EventsManager eventsManager, TaxiConfigGroup taxiCfg, Fleet fleet, MobsimTimer timer,
+								TaxiScheduler scheduler, ScheduleTimingUpdater scheduleTimingUpdater,
+								UnplannedRequestInserter requestInserter) {
 		this.fleet = fleet;
 		this.scheduler = scheduler;
+		this.eventsManager = eventsManager;
+		this.timer = timer;
 		this.scheduleTimingUpdater = scheduleTimingUpdater;
 		this.requestInserter = requestInserter;
 		this.taxiCfg = taxiCfg;
@@ -130,6 +138,20 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 		scheduler.updateBeforeNextTask(vehicle);
 
 		Task newCurrentTask = vehicle.getSchedule().nextTask();
+
+		// NOTE(CTudorache): theoretically, all taxi task events can be emitted here.
+		//                   Currently, only need EMPTY_DRIVE towards pickup.
+		if (newCurrentTask != null && EMPTY_DRIVE.isBaseTypeOf(newCurrentTask)) {
+			TaxiEmptyDriveTask emptyDriveTask = (TaxiEmptyDriveTask)newCurrentTask;
+			if (emptyDriveTask.getRequest() != null) {
+				eventsManager.processEvent(
+						new TaxiEmptyDriveToPickupEvent(
+								timer.getTimeOfDay(),
+								emptyDriveTask.getRequest(),
+								vehicle.getId()));
+			}
+		}
+
 		if (!requiresReoptimization && newCurrentTask != null) {// schedule != COMPLETED
 			requiresReoptimization = doReoptimizeAfterNextTask(newCurrentTask);
 		}
