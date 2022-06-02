@@ -66,6 +66,11 @@ public class VehicleData {
 		MutableInt idx = new MutableInt();
 		MutableInt idleCounter = new MutableInt();
 		vehicles.forEach(v -> {
+			// NOTE(CTudorache): discard vehicles which are currently offline. Even if the vehicle becomes online
+			//                   in the planningHorizon, the driver cannot confirm the order while being offline.
+			if (scheduleInquiry.isOutOfService(v)) {
+				return;
+			}
 			LinkTimePair departure = scheduleInquiry.getImmediateDiversionOrEarliestIdleness(v);
 
 			if (departure != null && departure.time <= maxDepartureTime) {

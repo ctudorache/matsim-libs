@@ -97,7 +97,7 @@ public final class AssignmentTaxiOptimizerParams extends AbstractTaxiOptimizerPa
 	private boolean debugAssignmentFailure = false;
 
 	public AssignmentTaxiOptimizerParams() {
-		super(SET_NAME, true, true);
+		super(SET_NAME, false, true);
 	}
 
 	@Override
