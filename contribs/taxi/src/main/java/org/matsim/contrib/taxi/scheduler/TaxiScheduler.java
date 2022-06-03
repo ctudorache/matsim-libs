@@ -308,7 +308,7 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 
 	public void requestExpired(TaxiRequest req) {
 		boolean isWaitingDriverConfirmation = driverConfirmationRegistry.removeDriverConfirmation(req);
-		log.warn("requestExpired: " + req + ", isWaitingDriverConfirmation: " + isWaitingDriverConfirmation);
+		log.log(DiagnosticLog.info, "requestExpired: " + req + ", isWaitingDriverConfirmation: " + isWaitingDriverConfirmation);
 		eventsManager.processEvent(new PassengerRequestRejectedEvent(
 				mobsimTimer.getTimeOfDay(), req.getMode(), req.getId(), req.getPassengerId(), REQUEST_EXPIRED));
 	}
