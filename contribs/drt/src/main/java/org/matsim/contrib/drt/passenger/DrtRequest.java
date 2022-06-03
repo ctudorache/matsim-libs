@@ -28,6 +28,7 @@ import org.matsim.contrib.dvrp.optimizer.Request;
 import org.matsim.contrib.dvrp.passenger.PassengerRequest;
 
 import com.google.common.base.MoreObjects;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 /**
  * @author michalm
@@ -58,7 +59,7 @@ public class DrtRequest implements PassengerRequest {
 		fromLink = builder.fromLink;
 		toLink = builder.toLink;
 
-		log.debug("CTudorache new DrtRequest: " + this);
+		log.log(DiagnosticLog.debug, "CTudorache new DrtRequest: " + this);
 	}
 
 	public static Builder newBuilder() {

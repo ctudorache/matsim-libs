@@ -31,6 +31,7 @@ import org.matsim.api.core.v01.population.Person;
 import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
 import org.matsim.contrib.dvrp.schedule.Task.TaskType;
 import org.matsim.core.api.internal.HasPersonId;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 /**
  * @author Michal Maciejewski (michalm)
@@ -60,7 +61,7 @@ public abstract class AbstractTaskEvent extends Event implements HasPersonId, Ha
 		this.taskIndex = taskIndex;
 		this.linkId = linkId;
 
-	    log.debug("CTudorache new AbstractTaskEvent: " + this);
+	    log.log(DiagnosticLog.debug, "CTudorache new AbstractTaskEvent: " + this);
 	}
 
 	public final Id<DvrpVehicle> getDvrpVehicleId() {

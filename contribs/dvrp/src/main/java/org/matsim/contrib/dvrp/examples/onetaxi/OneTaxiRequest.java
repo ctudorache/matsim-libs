@@ -28,6 +28,7 @@ import org.matsim.api.core.v01.population.Route;
 import org.matsim.contrib.dvrp.optimizer.Request;
 import org.matsim.contrib.dvrp.passenger.PassengerRequest;
 import org.matsim.contrib.dvrp.passenger.PassengerRequestCreator;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 /**
  * @author michalm
@@ -55,7 +56,7 @@ public final class OneTaxiRequest implements PassengerRequest {
 		this.fromLink = fromLink;
 		this.toLink = toLink;
 
-	    log.debug("CTudorache new OneTaxiRequest: " + this);
+	    log.log(DiagnosticLog.debug, "CTudorache new OneTaxiRequest: " + this);
 	}
 
 	@Override

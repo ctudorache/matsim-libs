@@ -37,6 +37,7 @@ import org.matsim.contrib.zone.ZonalSystems;
 import org.matsim.contrib.zone.Zone;
 
 import com.google.common.collect.Maps;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 public class IdleTaxiZonalRegistry {
 	private static final Logger log = Logger.getLogger(IdleTaxiZonalRegistry.class);
@@ -95,7 +96,7 @@ public class IdleTaxiZonalRegistry {
 				scheduleInquiry::isIdle :
 				vehicleFilter.and(scheduleInquiry::isIdle);
 
-		log.debug("CTudorache findNearestVehicles, node: " + node + ", minCount: " + minCount + ", vehicles: #" + vehicles.size());
+		log.log(DiagnosticLog.debug, "CTudorache findNearestVehicles, node: " + node + ", minCount: " + minCount + ", vehicles: #" + vehicles.size());
 		return minCount >= vehicles.size() ?
 				vehicles.values().stream().filter(idleVehicleFilter) :
 				zonesSortedByDistance.get(zonalSystem.getZone(node).getId())

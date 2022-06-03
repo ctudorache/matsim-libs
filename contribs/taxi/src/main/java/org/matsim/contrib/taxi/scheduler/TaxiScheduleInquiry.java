@@ -33,6 +33,7 @@ import org.matsim.contrib.dvrp.tracker.OnlineDriveTaskTracker;
 import org.matsim.contrib.dvrp.util.LinkTimePair;
 import org.matsim.contrib.taxi.run.TaxiConfigGroup;
 import org.matsim.core.mobsim.framework.MobsimTimer;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 /**
  * @author michalm
@@ -106,7 +107,7 @@ public class TaxiScheduleInquiry implements ScheduleInquiry {
 			case PLANNED:
 			case STARTED:
 				Task lastTask = Schedules.getLastTask(schedule);
-				log.debug("CTudorache getEarliestIdleness veh: " + veh + ", lastTask: " + lastTask);
+				log.log(DiagnosticLog.debug, "CTudorache getEarliestIdleness veh: " + veh + ", lastTask: " + lastTask);
 
 				switch (getBaseTypeOrElseThrow(lastTask)) {
 					case STAY:

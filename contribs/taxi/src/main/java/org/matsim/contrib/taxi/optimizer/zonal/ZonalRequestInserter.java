@@ -48,6 +48,7 @@ import org.matsim.contrib.zone.util.ZoneFinderImpl;
 import org.matsim.core.mobsim.framework.MobsimTimer;
 import org.matsim.core.router.util.TravelDisutility;
 import org.matsim.core.router.util.TravelTime;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 /**
  * @author michalm
@@ -89,7 +90,7 @@ public class ZonalRequestInserter implements UnplannedRequestInserter {
 
 	@Override
 	public void scheduleUnplannedRequests(Collection<TaxiRequest> unplannedRequests) {
-		log.debug("CTudorache scheduleUnplannedRequests #" + unplannedRequests.size());
+		log.log(DiagnosticLog.info, "CTudorache scheduleUnplannedRequests #" + unplannedRequests.size());
 
 		initIdleVehiclesInZones();
 		scheduleUnplannedRequestsWithinZones(unplannedRequests);
@@ -120,7 +121,7 @@ public class ZonalRequestInserter implements UnplannedRequestInserter {
 	}
 
 	private void scheduleUnplannedRequestsWithinZones(Collection<TaxiRequest> unplannedRequests) {
-		log.debug("CTudorache scheduleUnplannedRequestsWithinZones #" + unplannedRequests.size());
+		log.log(DiagnosticLog.info, "CTudorache scheduleUnplannedRequestsWithinZones #" + unplannedRequests.size());
 		Iterator<TaxiRequest> reqIter = unplannedRequests.iterator();
 		while (reqIter.hasNext()) {
 			TaxiRequest req = reqIter.next();
@@ -137,7 +138,7 @@ public class ZonalRequestInserter implements UnplannedRequestInserter {
 
 			Stream<DvrpVehicle> filteredVehs = Stream.of(idleVehsInZone.peek());
 			BestDispatchFinder.Dispatch<TaxiRequest> best = dispatchFinder.findBestVehicleForRequest(req, filteredVehs);
-			log.debug("CTudorache scheduleUnplannedRequestsWithinZones req: " + req + " => dispatch: " + best);
+			log.log(DiagnosticLog.info, "CTudorache scheduleUnplannedRequestsWithinZones req: " + req + " => dispatch: " + best);
 			if (best != null) {
 				scheduler.scheduleRequest(best.vehicle, best.destination, best.path);
 				reqIter.remove();

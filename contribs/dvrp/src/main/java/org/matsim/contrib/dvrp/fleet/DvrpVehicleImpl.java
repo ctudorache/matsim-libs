@@ -26,6 +26,7 @@ import org.matsim.api.core.v01.network.Link;
 import org.matsim.contrib.dvrp.schedule.Schedule;
 
 import com.google.common.base.MoreObjects;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 /**
  * @author michalm
@@ -53,7 +54,7 @@ public class DvrpVehicleImpl implements DvrpVehicle {
 		this.startLink = startLink;
 		schedule = Schedule.create(specification);
 
-	    log.debug("CTudorache new DvrpVehicleImpl: " + this);
+	    log.log(DiagnosticLog.debug, "CTudorache new DvrpVehicleImpl: " + this);
 	}
 
 	@Override

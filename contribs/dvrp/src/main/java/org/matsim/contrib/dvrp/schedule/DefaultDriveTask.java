@@ -25,6 +25,7 @@ import org.matsim.contrib.dvrp.path.VrpPath;
 import org.matsim.contrib.dvrp.path.VrpPathWithTravelData;
 
 import com.google.common.base.MoreObjects;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 /**
  * @author Michal Maciejewski (michalm)
@@ -37,7 +38,7 @@ public class DefaultDriveTask extends AbstractTask implements DriveTask {
 		super(taskType, path.getDepartureTime(), path.getArrivalTime());
 		this.path = path;
 
-	    log.debug("CTudorache new DefaultDriveTask: " + this);
+	    log.log(DiagnosticLog.debug, "CTudorache new DefaultDriveTask: " + this);
 	}
 
 	@Override

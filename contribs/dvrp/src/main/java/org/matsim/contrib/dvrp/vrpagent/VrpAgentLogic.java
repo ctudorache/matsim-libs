@@ -30,6 +30,7 @@ import org.matsim.contrib.dynagent.DynAgent;
 import org.matsim.contrib.dynagent.DynAgentLogic;
 import org.matsim.contrib.dynagent.IdleDynActivity;
 import org.matsim.core.api.experimental.events.EventsManager;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 /**
  * @author michalm
@@ -58,7 +59,7 @@ public final class VrpAgentLogic implements DynAgentLogic {
 		this.dvrpMode = dvrpMode;
 		this.eventsManager = eventsManager;
 
-	    log.debug("CTudorache new VrpAgentLogic: " + this);
+	    log.log(DiagnosticLog.debug, "CTudorache new VrpAgentLogic: " + this);
 	}
 
 	@Override

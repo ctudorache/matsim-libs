@@ -24,6 +24,7 @@ import org.matsim.contrib.taxi.analysis.TaxiEventSequenceCollector;
 import org.matsim.contrib.taxi.run.TaxiConfigGroup;
 import org.matsim.core.mobsim.framework.events.MobsimBeforeCleanupEvent;
 import org.matsim.core.mobsim.framework.listeners.MobsimBeforeCleanupListener;
+import org.matsim.core.utils.misc.DiagnosticLog;
 import org.matsim.core.utils.misc.Time;
 
 import com.google.inject.Inject;
@@ -43,7 +44,7 @@ public class TaxiSimulationConsistencyChecker implements MobsimBeforeCleanupList
 	public void addCheckAllRequestsPerformed() {
 		for (var seq : taxiEventSequenceCollector.getRequestSequences().values()) {
 			if (!seq.isCompleted()) {
-				log.debug("CTudorache seq INCOMPLETE: " + taxiEventSequenceCollector);
+				log.log(DiagnosticLog.info, "CTudorache seq INCOMPLETE: " + taxiEventSequenceCollector);
 				if (taxiCfg.isBreakSimulationIfNotAllRequestsServed()) {
 					throw new IllegalStateException(
 							"Not all taxi requests served at simulation end time. This exception can be disabled in the taxi config group.");

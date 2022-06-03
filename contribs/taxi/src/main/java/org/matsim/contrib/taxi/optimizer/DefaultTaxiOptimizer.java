@@ -40,6 +40,7 @@ import org.matsim.contrib.taxi.scheduler.events.TaxiEmptyDriveToPickupEvent;
 import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.mobsim.framework.MobsimTimer;
 import org.matsim.core.mobsim.framework.events.MobsimBeforeSimStepEvent;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 /**
  * @author michalm
@@ -80,7 +81,7 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 		requiresReoptimization |= !unplannedRequests.getSchedulableRequests().isEmpty();
 
 		if (isNewDecisionEpoch(e, params.getReoptimizationTimeStep())) {
-			log.debug("CTudorache notifyMobsimBeforeSimStep"
+			log.log(DiagnosticLog.info, "CTudorache notifyMobsimBeforeSimStep"
 					+ ", simTime: " + e.getSimulationTime()
 					+ ", unplannedRequests.schedulable: #" + unplannedRequests.getSchedulableRequests().size()
 					+ ", requiresReoptimization: " + requiresReoptimization
@@ -124,6 +125,12 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 
 	protected void unscheduleAwaitingRequests() {
 		List<TaxiRequest> removedRequests = scheduler.removeAwaitingRequestsFromAllSchedules();
+		if (removedRequests.size() > 0) {
+			log.log(DiagnosticLog.info, "CTudorache unscheduleAwaitingRequests #" + removedRequests.size());
+			for (TaxiRequest req : removedRequests) {
+				log.log(DiagnosticLog.info, " - " + req);
+			}
+		}
 		removedRequests.forEach(unplannedRequests::addRequest);
 	}
 
@@ -168,7 +175,7 @@ public class DefaultTaxiOptimizer implements TaxiOptimizer {
 	private void expireUnplannedOldRequests(double simulationTime) {
 		Collection<TaxiRequest> expiredRequests = unplannedRequests.removeExpiredRequests();
 		if (expiredRequests.size() > 0 && log.isDebugEnabled()) {
-			log.debug("NOW: " + simulationTime
+			log.warn("NOW: " + simulationTime
 					+ ", expiredRequests #" + expiredRequests.size()
 					+ ", remaining: " + unplannedRequests.getSchedulableRequests().size()
 			        + ", idleVehicles: " + fleet.getVehicles().values().stream().filter(scheduler.getScheduleInquiry()::isIdle).count());

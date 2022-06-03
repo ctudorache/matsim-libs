@@ -28,6 +28,7 @@ import org.matsim.contrib.dvrp.analysis.ExecutedScheduleCollector;
 import org.matsim.contrib.dvrp.run.AbstractDvrpModeModule;
 import org.matsim.contrib.dvrp.run.AbstractDvrpModeQSimModule;
 import org.matsim.core.controler.OutputDirectoryHierarchy;
+import org.matsim.core.utils.misc.DiagnosticLog;
 import org.matsim.vehicles.VehicleType;
 import org.matsim.vehicles.VehicleUtils;
 import org.matsim.vehicles.Vehicles;
@@ -68,7 +69,7 @@ public class FleetModule extends AbstractDvrpModeModule {
 
 	@Override
 	public void install() {
-		log.debug("CTudorache FleetModule.install, fleetSpecificationUrl: " + fleetSpecificationUrl);
+		log.log(DiagnosticLog.info, "CTudorache FleetModule.install, fleetSpecificationUrl: " + fleetSpecificationUrl);
 		// 3 options:
 		// - vehicle specifications provided in a separate XML file (http://matsim.org/files/dtd/dvrp_vehicles_v1.dtd)
 		// - vehicle specifications derived from the "standard" matsim vehicles (only if they are read from a file,

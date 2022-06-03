@@ -28,7 +28,6 @@ import org.matsim.api.core.v01.network.Network;
 import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
 import org.matsim.contrib.dvrp.fleet.Fleet;
 import org.matsim.contrib.dvrp.path.OneToManyPathSearch;
-import org.matsim.contrib.dvrp.schedule.Schedules;
 import org.matsim.contrib.dvrp.util.LinkTimePair;
 import org.matsim.contrib.taxi.optimizer.BestDispatchFinder.Dispatch;
 import org.matsim.contrib.taxi.optimizer.UnplannedRequestInserter;
@@ -43,6 +42,7 @@ import org.matsim.core.router.speedy.SpeedyALTFactory;
 import org.matsim.core.router.util.LeastCostPathCalculator;
 import org.matsim.core.router.util.TravelDisutility;
 import org.matsim.core.router.util.TravelTime;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 /**
  * @author michalm
@@ -80,7 +80,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 
 	@Override
 	public void scheduleUnplannedRequests(Collection<TaxiRequest> unplannedRequests) {
-		log.debug("CTudorache scheduleUnplannedRequests #" + unplannedRequests.size());
+		log.log(DiagnosticLog.info, "CTudorache scheduleUnplannedRequests #" + unplannedRequests.size() + ", now: " + timer.getTimeOfDay());
 
 		// schedule requests which are confirmed
 		List<DriverConfirmation> requestsToSchedule = new ArrayList<>();
@@ -112,7 +112,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 			vehPlanningHorizonSec = params.getVehPlanningHorizonOversupply();
 			vehPlanningHorizonName = "oversupply (veh >= req)";
 		}
-		log.debug("CTudorache scheduleUnplannedRequests"
+		log.log(DiagnosticLog.info, "CTudorache scheduleUnplannedRequests"
 				+ ", req urgent/all: " + rData.getSize() + "/" + rData.getUrgentReqCount()
 				+ ", taxi idle/all: " + vData.getSize() + "/" + vData.getIdleCount()
 				+ ", horizon: " + vehPlanningHorizonSec + " (" + vehPlanningHorizonName + ")");
@@ -123,7 +123,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 			Set<TaxiRequest> input = rData.getEntries().stream().map(e -> e.destination).collect(Collectors.toSet());
 			Set<TaxiRequest> output = assignments.stream().map(e -> e.destination).collect(Collectors.toSet());
 			input.removeAll(output);
-			log.warn("CTudorache Cannot find a matching driver for all req"
+			log.log(DiagnosticLog.info, "CTudorache Cannot find a matching driver for all req"
 					+ ", req urgent/all: " + rData.getSize() + "/" + rData.getUrgentReqCount()
 					+ ", taxi idle/all: " + vData.getSize() + "/" + vData.getIdleCount()
 					+ ", horizon: " + vehPlanningHorizonSec + " (" + vehPlanningHorizonName + ")"
@@ -131,9 +131,9 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 					+ ", fleet: " + strFleetState(input));
 		}
 
-		log.debug("CTudorache scheduleUnplannedRequests dispatching: #" + assignments.size());
+		log.log(DiagnosticLog.debug, "CTudorache scheduleUnplannedRequests dispatching: #" + assignments.size());
 		for (Dispatch<TaxiRequest> a : assignments) {
-			log.debug(" - " + a);
+			log.log(DiagnosticLog.debug, " - " + a);
 		}
 
 		// create DriverConfirmation for all the requests. If the driver confirmation is instant, then proceed with schedule.
@@ -153,7 +153,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 				unplannedRequests.remove(dc.request);
 			}
 		}
-
+		log.log(DiagnosticLog.info, "CTudorache scheduleUnplannedRequests DONE. Remaining: #" + unplannedRequests.size() + ", now: " + timer.getTimeOfDay());
 	}
 
 	private VehicleData initVehicleData(AssignmentRequestData rData) {

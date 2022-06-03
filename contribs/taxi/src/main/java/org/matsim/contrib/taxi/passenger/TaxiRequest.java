@@ -30,6 +30,7 @@ import org.matsim.contrib.taxi.schedule.TaxiPickupTask;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.MoreObjects;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 /**
  * @author michalm
@@ -75,7 +76,7 @@ public class TaxiRequest implements PassengerRequest {
 		this.fromLink = fromLink;
 		this.toLink = toLink;
 
-	    log.debug("CTudorache new TaxiRequest: " + this);
+	    log.log(DiagnosticLog.info, "CTudorache new TaxiRequest: " + this);
 	}
 
 	@Override

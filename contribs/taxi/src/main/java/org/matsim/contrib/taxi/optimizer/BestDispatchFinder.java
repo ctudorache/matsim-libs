@@ -25,6 +25,7 @@ import org.matsim.core.router.util.TravelDisutility;
 import org.matsim.core.router.util.TravelTime;
 
 import com.google.common.collect.Maps;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 /**
  * @author michalm
@@ -111,20 +112,20 @@ public class BestDispatchFinder {
 			return null;
 		}
 
-		log.debug("CTudorache multiSourceALT:");
-		log.warn(" - from: " + vehicleNodes.values());
-		log.warn(" - to: " + destinationNode);
+		log.log(DiagnosticLog.debug, "CTudorache multiSourceALT:");
+		log.log(DiagnosticLog.debug, " - from: " + vehicleNodes.values());
+		log.log(DiagnosticLog.debug, " - to: " + destinationNode);
 		Path path = multiSourceALT.calcLeastCostPath(vehicleNodes.values(), destinationNode, null, null, false);
-		log.warn(" - path: " + path);
+		log.log(DiagnosticLog.debug, " - path: " + path);
 
 		// the calculated path contains real nodes (no imaginary/initial nodes),
 		// the time and cost are of real travel (between the first and last real node)
 		// (no initial times/costs for imaginary<->initial are included)
 		Node fromNode = path.getFromNode();
 		DvrpVehicle bestVehicle = nodeToVehicle.get(fromNode.getId());
-		log.warn(" - bestVehicle: " + bestVehicle);
+		log.log(DiagnosticLog.debug, " - bestVehicle: " + bestVehicle);
 		LinkTimePair bestDeparture = scheduleInquiry.getImmediateDiversionOrEarliestIdleness(bestVehicle);
-		log.warn(" - bestDeparture: " + bestDeparture);
+		log.log(DiagnosticLog.debug, " - bestDeparture: " + bestDeparture);
 
 		VrpPathWithTravelData vrpPath = VrpPaths.createPath(bestDeparture.link, destinationLink, bestDeparture.time,
 				path, travelTime);

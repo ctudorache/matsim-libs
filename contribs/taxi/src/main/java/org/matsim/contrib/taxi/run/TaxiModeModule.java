@@ -40,6 +40,7 @@ import org.matsim.core.router.util.TravelTime;
 
 import com.google.inject.Key;
 import com.google.inject.name.Names;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 /**
  * @author michalm
@@ -55,7 +56,7 @@ public final class TaxiModeModule extends AbstractDvrpModeModule {
 
 	@Override
 	public void install() {
-		log.debug("CTudorache TaxiModeModule.install: " + taxiCfg);
+		log.log(DiagnosticLog.info, "CTudorache TaxiModeModule.install: " + taxiCfg);
 		DvrpModes.registerDvrpMode(binder(), getMode());
 
 		install(new DvrpModeRoutingNetworkModule(getMode(), taxiCfg.isUseModeFilteredSubnetwork()));

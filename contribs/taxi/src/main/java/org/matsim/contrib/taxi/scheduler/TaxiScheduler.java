@@ -67,6 +67,7 @@ import org.matsim.core.router.util.LeastCostPathCalculator;
 import org.matsim.core.router.util.TravelTime;
 
 import com.google.common.util.concurrent.Futures;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 public class TaxiScheduler implements MobsimBeforeCleanupListener {
     private static final Logger log = Logger.getLogger(TaxiScheduler.class);
@@ -128,7 +129,7 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 	// =========================================================================================
 
 	public void scheduleRequest(DvrpVehicle vehicle, TaxiRequest request, VrpPathWithTravelData vrpPath) {
-		log.debug("CTudorache scheduleRequest vehicle: " + vehicle + ", req: " + request);
+		log.log(DiagnosticLog.info, "CTudorache scheduleRequest vehicle: " + vehicle + ", req: " + request);
 		if (taxiScheduleInquiry.isOutOfService(vehicle)) {
 			throw new IllegalStateException("Vehicle out of service: " + vehicle + ", req: " + request);
 		}
@@ -168,7 +169,7 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 	// TODO(CTudorache): should be called divertOrAppendDriveToPickup()
 	protected void divertOrAppendDrive(DvrpVehicle vehicle, TaxiRequest request, VrpPathWithTravelData vrpPath, TaxiTaskType taskType) {
 		Task lastTask = Schedules.getLastTask(vehicle.getSchedule());
-		log.debug("CTudorache divertOrAppendDrive lastTask: " + lastTask);
+		log.log(DiagnosticLog.info, "CTudorache divertOrAppendDrive lastTask: " + lastTask);
 		switch (getBaseTypeOrElseThrow(lastTask)) {
 			case EMPTY_DRIVE:
 				divertDrive(vehicle, (TaxiEmptyDriveTask)lastTask, request, vrpPath);
@@ -200,7 +201,7 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 	// TODO(CTudorache): should be called scheduleDriveToPickup
 	protected void scheduleDrive(Schedule schedule, TaxiStayTask lastTask, TaxiRequest request, VrpPathWithTravelData vrpPath,
 			TaxiTaskType taskType) {
-		log.debug("CTudorache scheduleDrive lastTask: " + lastTask + ", vrpPath: " + vrpPath);
+		log.log(DiagnosticLog.info, "CTudorache scheduleDrive lastTask: " + lastTask + ", vrpPath: " + vrpPath);
 		switch (lastTask.getStatus()) {
 			case PLANNED:
 				if (lastTask.getBeginTime() == vrpPath.getDepartureTime()) { // waiting for 0 seconds!!!
@@ -307,7 +308,7 @@ public class TaxiScheduler implements MobsimBeforeCleanupListener {
 
 	public void requestExpired(TaxiRequest req) {
 		boolean isWaitingDriverConfirmation = driverConfirmationRegistry.removeDriverConfirmation(req);
-		log.debug("requestExpired: " + req + ", isWaitingDriverConfirmation: " + isWaitingDriverConfirmation);
+		log.warn("requestExpired: " + req + ", isWaitingDriverConfirmation: " + isWaitingDriverConfirmation);
 		eventsManager.processEvent(new PassengerRequestRejectedEvent(
 				mobsimTimer.getTimeOfDay(), req.getMode(), req.getId(), req.getPassengerId(), REQUEST_EXPIRED));
 	}

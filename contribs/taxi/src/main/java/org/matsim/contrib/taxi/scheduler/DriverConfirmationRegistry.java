@@ -9,6 +9,7 @@ import org.matsim.contrib.taxi.scheduler.events.DriverConfirmationCompletedEvent
 import org.matsim.contrib.taxi.scheduler.events.DriverConfirmationCreatedEvent;
 import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.mobsim.framework.MobsimTimer;
+import org.matsim.core.utils.misc.DiagnosticLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ public class DriverConfirmationRegistry {
 		DriverConfirmation dc = new DriverConfirmation(req, vehicle, pathToPickup, timer.getTimeOfDay() + taxiCfg.getDriverConfirmationDelay());
 		updateDriverConfirmation(dc);
 		if (!dc.isComplete()) {
-			log.debug("CTudorache addDriverConfirmation: " + dc);
+			log.log(DiagnosticLog.info, "CTudorache addDriverConfirmation: " + dc);
 			confirmations.add(dc);
 		}
 		eventsManager.processEvent(new DriverConfirmationCreatedEvent(timer.getTimeOfDay(), req.getId(), req.getPassengerId(), vehicle.getId()));
@@ -49,7 +50,7 @@ public class DriverConfirmationRegistry {
 	}
 
 	public void removeDriverConfirmation(DriverConfirmation dc) {
-		log.debug("CTudorache removeDriverConfirmation: " + dc);
+		log.log(DiagnosticLog.info, "CTudorache removeDriverConfirmation: " + dc);
 		confirmations.remove(dc);
 		eventsManager.processEvent(new DriverConfirmationCompletedEvent(
 				timer.getTimeOfDay(), dc.request.getId(), dc.request.getPassengerId(), dc.vehicle.getId(), dc.isAccepted()));
@@ -89,7 +90,7 @@ public class DriverConfirmationRegistry {
 	private void updateDriverConfirmation(DriverConfirmation dc) {
 		if (!dc.isComplete() && dc.endTime <= timer.getTimeOfDay()) {
 			dc.setComplete(true); // auto-accept
-			log.debug("CTudorache DriverConfirmation complete: " + dc);
+			log.log(DiagnosticLog.info, "CTudorache DriverConfirmation complete: " + dc);
 		}
 	}
 }
