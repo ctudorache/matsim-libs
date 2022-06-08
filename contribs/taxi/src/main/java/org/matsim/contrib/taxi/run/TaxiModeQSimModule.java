@@ -152,9 +152,11 @@ public class TaxiModeQSimModule extends AbstractDvrpModeQSimModule {
 
 		bindModal(PassengerRequestValidator.class).to(DefaultPassengerRequestValidator.class).asEagerSingleton();
 
-		addModalQSimComponentBinding().toProvider(modalProvider(
-				getter -> new TaxiSimulationConsistencyChecker(getter.getModal(TaxiEventSequenceCollector.class),
-						taxiCfg)));
+		if (taxiCfg.isEnableTaxiSimulationConsistencyChecker()) {
+			addModalQSimComponentBinding().toProvider(modalProvider(
+					getter -> new TaxiSimulationConsistencyChecker(getter.getModal(TaxiEventSequenceCollector.class),
+							taxiCfg)));
+		}
 
 		bindModal(VrpOptimizer.class).to(modalKey(TaxiOptimizer.class));
 	}

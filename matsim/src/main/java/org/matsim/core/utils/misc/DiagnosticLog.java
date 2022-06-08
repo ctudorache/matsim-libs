@@ -3,6 +3,7 @@ package org.matsim.core.utils.misc;
 import org.apache.log4j.Level;
 
 public class DiagnosticLog {
+    public static Level warn = Level.WARN;
     public static Level info = Level.DEBUG;
     public static Level debug = Level.DEBUG;
     public static void setInfoLevel(Level logLevel) {

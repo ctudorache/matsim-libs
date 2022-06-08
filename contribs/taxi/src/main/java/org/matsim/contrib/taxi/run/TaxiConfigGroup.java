@@ -129,6 +129,11 @@ public final class TaxiConfigGroup extends ReflectiveConfigGroupWithConfigurable
 	static final String DETAILED_STATS_EXP = "If true, detailed hourly taxi stats are dumped after each iteration."
 			+ " False by default.";
 
+	public static final String ENABLE_TAXI_SIMULATION_CONSISTENCY_CHECKER = "checkAllRequestsServed";
+	static final String ENABLE_TAXI_SIMULATION_CONSISTENCY_CHECKER_EXP =
+			"At iteration end, check that all requests were performed."
+					+ " NOTE: slow operation, takes 10x simulation time!";
+
 	public static final String BREAK_IF_NOT_ALL_REQUESTS_SERVED = "breakIfNotAllRequestsServed";
 	static final String BREAK_IF_NOT_ALL_REQUESTS_SERVED_EXP =
 			"Specifies whether the simulation should interrupt if not all requests were performed when"
@@ -168,6 +173,7 @@ public final class TaxiConfigGroup extends ReflectiveConfigGroupWithConfigurable
 	private boolean timeProfiles = false;
 	private boolean detailedStats = false;
 
+	private boolean enableTaxiSimulationConsistencyChecker = false;
 	private boolean breakSimulationIfNotAllRequestsServed = true;
 
 	@Positive
@@ -229,6 +235,7 @@ public final class TaxiConfigGroup extends ReflectiveConfigGroupWithConfigurable
 		map.put(TAXIS_FILE, TAXIS_FILE_EXP);
 		map.put(TIME_PROFILES, TIME_PROFILES_EXP);
 		map.put(DETAILED_STATS, DETAILED_STATS_EXP);
+		map.put(ENABLE_TAXI_SIMULATION_CONSISTENCY_CHECKER, ENABLE_TAXI_SIMULATION_CONSISTENCY_CHECKER_EXP);
 		map.put(BREAK_IF_NOT_ALL_REQUESTS_SERVED, BREAK_IF_NOT_ALL_REQUESTS_SERVED_EXP);
 		map.put(NUMBER_OF_THREADS, NUMBER_OF_THREADS_EXP);
 		return map;
@@ -453,6 +460,23 @@ public final class TaxiConfigGroup extends ReflectiveConfigGroupWithConfigurable
 	@StringSetter(DETAILED_STATS)
 	public TaxiConfigGroup setDetailedStats(boolean detailedStats) {
 		this.detailedStats = detailedStats;
+		return this;
+	}
+
+	/**
+	 * @return {@value #ENABLE_TAXI_SIMULATION_CONSISTENCY_CHECKER_EXP}
+	 */
+	@StringGetter(ENABLE_TAXI_SIMULATION_CONSISTENCY_CHECKER)
+	public boolean isEnableTaxiSimulationConsistencyChecker() {
+		return enableTaxiSimulationConsistencyChecker;
+	}
+
+	/**
+	 * @param enableTaxiSimulationConsistencyChecker {@value #ENABLE_TAXI_SIMULATION_CONSISTENCY_CHECKER_EXP}
+	 */
+	@StringSetter(ENABLE_TAXI_SIMULATION_CONSISTENCY_CHECKER)
+	public TaxiConfigGroup setEnableTaxiSimulationConsistencyChecker(boolean enableTaxiSimulationConsistencyChecker) {
+		this.enableTaxiSimulationConsistencyChecker = enableTaxiSimulationConsistencyChecker;
 		return this;
 	}
 
