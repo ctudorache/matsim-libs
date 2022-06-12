@@ -36,7 +36,6 @@ import org.matsim.core.utils.misc.DiagnosticLog;
  * @author michalm
  */
 public final class VrpAgentLogic implements DynAgentLogic {
-    private static final Logger log = Logger.getLogger(VrpAgentLogic.class);
 	public static final String BEFORE_SCHEDULE_ACTIVITY_TYPE = "BeforeVrpSchedule";
 	public static final String AFTER_SCHEDULE_ACTIVITY_TYPE = "AfterVrpSchedule";
 
@@ -58,8 +57,6 @@ public final class VrpAgentLogic implements DynAgentLogic {
 		this.vehicle = vehicle;
 		this.dvrpMode = dvrpMode;
 		this.eventsManager = eventsManager;
-
-	    log.log(DiagnosticLog.debug, "CTudorache new VrpAgentLogic: " + this);
 	}
 
 	@Override

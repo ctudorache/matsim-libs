@@ -80,13 +80,16 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 
 	@Override
 	public void scheduleUnplannedRequests(Collection<TaxiRequest> unplannedRequests) {
-		log.log(DiagnosticLog.info, "CTudorache scheduleUnplannedRequests #" + unplannedRequests.size() + ", now: " + timer.getTimeOfDay());
+		final long idleVehicles = fleet.getVehicles().values().stream().filter(scheduler.getScheduleInquiry()::isIdle).count();
+		log.log(DiagnosticLog.info, "CTudorache scheduleUnplannedRequests #" + unplannedRequests.size() +
+				", idleVehicles: " + idleVehicles + ", now: " + timer.getTimeOfDay());
 
 		// schedule requests which are confirmed
 		List<DriverConfirmation> requestsToSchedule = new ArrayList<>();
 		List<TaxiRequest> requestsToPlan = new ArrayList<>();
 		for (TaxiRequest r : unplannedRequests) {
 			DriverConfirmation dc = driverConfirmationRegistry().getDriverConfirmation(r);
+		    log.log(DiagnosticLog.debug, " - " + r + ", driverConfirmation: " + dc);
 			if (dc == null) {
 				requestsToPlan.add(r);
 				r.scheduleAttempts += 1;
@@ -104,8 +107,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 
 		double vehPlanningHorizonSec;
 		String vehPlanningHorizonName;
-		long idleVehs = fleet.getVehicles().values().stream().filter(scheduler.getScheduleInquiry()::isIdle).count();
-		if (idleVehs < rData.getUrgentReqCount()) {
+		if (idleVehicles < rData.getUrgentReqCount()) {
 			vehPlanningHorizonSec = params.getVehPlanningHorizonUndersupply();
 			vehPlanningHorizonName = "undersupply (veh < req)";
 		} else {
@@ -114,7 +116,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 		}
 		log.log(DiagnosticLog.info, "CTudorache scheduleUnplannedRequests"
 				+ ", req urgent/all: " + rData.getSize() + "/" + rData.getUrgentReqCount()
-				+ ", taxi idle/all: " + vData.getSize() + "/" + vData.getIdleCount()
+				+ ", taxi idle/eligible/all: " + vData.getIdleCount()  + "/" + vData.getSize() + "/" + fleet.getVehicles().size()
 				+ ", horizon: " + vehPlanningHorizonSec + " (" + vehPlanningHorizonName + ")");
 
 		AssignmentCost<TaxiRequest> cost = assignmentCostProvider.getCost(rData, vData);
@@ -125,7 +127,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 			input.removeAll(output);
 			log.log(DiagnosticLog.info, "CTudorache Cannot find a matching driver for all req"
 					+ ", req urgent/all: " + rData.getSize() + "/" + rData.getUrgentReqCount()
-					+ ", taxi idle/all: " + vData.getSize() + "/" + vData.getIdleCount()
+					+ ", taxi idle/eligible/all: " + vData.getIdleCount()  + "/" + vData.getSize() + "/" + fleet.getVehicles().size()
 					+ ", horizon: " + vehPlanningHorizonSec + " (" + vehPlanningHorizonName + ")"
 					+ ", assigned: " + assignments.size() + ", diffSize: " + input.size()
 					+ ", fleet: " + strFleetState(input));
@@ -153,7 +155,10 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 				unplannedRequests.remove(dc.request);
 			}
 		}
-		log.log(DiagnosticLog.info, "CTudorache scheduleUnplannedRequests DONE. Remaining: #" + unplannedRequests.size() + ", now: " + timer.getTimeOfDay());
+		log.log(DiagnosticLog.info, "CTudorache scheduleUnplannedRequests DONE" +
+				", scheduled: #" + requestsToSchedule.size() + "/" + unplannedRequests.size() +
+				", remaining: #" + unplannedRequests.size() + "/" + unplannedRequests.size() +
+				", now: " + timer.getTimeOfDay());
 	}
 
 	private VehicleData initVehicleData(AssignmentRequestData rData) {
@@ -225,7 +230,7 @@ public class AssignmentRequestInserter implements UnplannedRequestInserter {
 		long totalCount = onlineCount + offlineCount;
 		return "{offline: " + strPercentage(offlineCount, totalCount)
 				+ ", online: " + strPercentage(onlineCount, totalCount)
-				+ ", driving:: " + strPercentage(drivingCount, totalCount)
+				+ ", driving: " + strPercentage(drivingCount, totalCount)
 				+ ", waitingConf: " + strPercentage(waitingConfirmationCount, totalCount)
 				+ ", waitingConfDueSec: " + strDescriptiveStats(waitingConfirmationDueSec)
 				+ ", idle: " + strPercentage(idleVehicles.size(), totalCount)
